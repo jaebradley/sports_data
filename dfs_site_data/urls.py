@@ -14,9 +14,16 @@ Including another URLconf
     2. Import the include() function: from django.conf.urls import url, include
     3. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import url
-from django.contrib import admin
+from django.conf.urls import url, include
+from rest_framework.routers import DefaultRouter
+
+from data.views import DfsSiteViewSet
+
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'sites', DfsSiteViewSet, base_name="sites")
+
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^', include(router.urls)),
 ]
