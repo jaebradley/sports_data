@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 # Create your models here.
 
 
-from django.db.models import Model, IntegerField, CharField, DateTimeField, ForeignKey, CASCADE
+from django.db.models import Model, BigIntegerField, IntegerField, CharField, DateTimeField, ForeignKey, CASCADE
 
 
 class DfsSite(Model):
@@ -34,7 +34,7 @@ class Position(Model):
 class DfsPosition(Model):
     site = ForeignKey(DfsSite, on_delete=CASCADE, related_name='site')
     position = ForeignKey(Position, on_delete=CASCADE, related_name='position')
-    site_position_id = IntegerField()
+    dfs_site_position_id = IntegerField()
 
     class Meta:
         unique_together = ('site', 'position')
@@ -74,7 +74,7 @@ class Season(Model):
         unique_together = ('league', 'start_time', 'end_time')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.league, self.name)
+        return '{0} - {1} - {2}'.format(self.league, self.start_time, self.end_time)
 
 
 class TeamSeason(Model):
@@ -91,18 +91,25 @@ class TeamSeason(Model):
 class Player(Model):
     team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='team_season')
     name = CharField(max_length=250)
-    identifier = IntegerField()
+    identifier = BigIntegerField()
 
     class Meta:
-        unique_together = ('team_season', 'name')
+        unique_together = ('team_season', 'name', 'identifier')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.team_season, self.name, self.number)
+        return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
+
 
 class DfsPlayer(Model):
     player = ForeignKey(Player, on_delete=CASCADE, related_name='player')
     site = ForeignKey(DfsSite, on_delete=CASCADE, related_name='site')
-    site_player_id = IntegerField()
+    site_identifier = BigIntegerField()
+
+    class Meta:
+        unique_together = ('player', 'site')
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.player, self.site, self.site_identifier)
 
 
 class PlayerPosition(Model):
@@ -132,7 +139,8 @@ class PlayerGame(Model):
     player = ForeignKey(Player, on_delete=CASCADE, related_name='player')
     game = ForeignKey(Game, on_delete=CASCADE, related_name='game')
 
+    class Meta:
+        unique_together = ('player', 'game')
 
-class DfsPlayerGame(Model):
-
-
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.player, self.game)
