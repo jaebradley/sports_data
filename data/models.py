@@ -21,7 +21,7 @@ class Sport(Model):
 
 
 class Position(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE, related_name='sport')
+    sport = ForeignKey(Sport, on_delete=CASCADE, related_name='position_sport')
     name = CharField(max_length=100)
 
     class Meta:
@@ -32,8 +32,8 @@ class Position(Model):
 
 
 class DfsPosition(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE, related_name='site')
-    position = ForeignKey(Position, on_delete=CASCADE, related_name='position')
+    site = ForeignKey(DfsSite, on_delete=CASCADE)
+    position = ForeignKey(Position, on_delete=CASCADE)
     dfs_site_position_id = IntegerField()
 
     class Meta:
@@ -44,7 +44,7 @@ class DfsPosition(Model):
 
 
 class League(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE, related_name='sport')
+    sport = ForeignKey(Sport, on_delete=CASCADE)
     name = CharField(max_length=100)
 
     class Meta:
@@ -55,7 +55,7 @@ class League(Model):
 
 
 class Team(Model):
-    league = ForeignKey(League, on_delete=CASCADE, related_name='league')
+    league = ForeignKey(League, on_delete=CASCADE)
     name = CharField(max_length=100)
 
     class Meta:
@@ -66,7 +66,7 @@ class Team(Model):
 
 
 class Season(Model):
-    league = ForeignKey(League, on_delete=CASCADE, related_name='league')
+    league = ForeignKey(League, on_delete=CASCADE)
     start_time = DateTimeField()
     end_time = DateTimeField()
 
@@ -78,8 +78,8 @@ class Season(Model):
 
 
 class TeamSeason(Model):
-    team = ForeignKey(Team, on_delete=CASCADE, related_name='team')
-    season = ForeignKey(Season, on_delete=CASCADE, related_name='season')
+    team = ForeignKey(Team, on_delete=CASCADE)
+    season = ForeignKey(Season, on_delete=CASCADE)
 
     class Meta:
         unique_together = ('team', 'season')
@@ -89,7 +89,7 @@ class TeamSeason(Model):
 
 
 class Player(Model):
-    team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='team_season')
+    team_season = ForeignKey(TeamSeason, on_delete=CASCADE)
     name = CharField(max_length=250)
     identifier = BigIntegerField()
 
@@ -101,8 +101,8 @@ class Player(Model):
 
 
 class DfsPlayer(Model):
-    player = ForeignKey(Player, on_delete=CASCADE, related_name='player')
-    site = ForeignKey(DfsSite, on_delete=CASCADE, related_name='site')
+    player = ForeignKey(Player, on_delete=CASCADE)
+    site = ForeignKey(DfsSite, on_delete=CASCADE)
     site_identifier = BigIntegerField()
 
     class Meta:
@@ -113,8 +113,8 @@ class DfsPlayer(Model):
 
 
 class PlayerPosition(Model):
-    player = ForeignKey(Player, on_delete=CASCADE, related_name='player')
-    position = ForeignKey(Position, on_delete=CASCADE, related_name='position')
+    player = ForeignKey(Player, on_delete=CASCADE)
+    position = ForeignKey(Position, on_delete=CASCADE)
 
     class Meta:
         unique_together = ('player', 'position')
@@ -136,8 +136,8 @@ class Game(Model):
 
 
 class PlayerGame(Model):
-    player = ForeignKey(Player, on_delete=CASCADE, related_name='player')
-    game = ForeignKey(Game, on_delete=CASCADE, related_name='game')
+    player = ForeignKey(Player, on_delete=CASCADE)
+    game = ForeignKey(Game, on_delete=CASCADE)
 
     class Meta:
         unique_together = ('player', 'game')
