@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import DfsSiteInserter
-from data.inserters import SportInserter
+from data.inserters import DfsSite, Sport, League
 
 
 class Command(BaseCommand):
@@ -13,5 +12,6 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        DfsSiteInserter.insert()
-        SportInserter.insert()
+        DfsSite.insert()
+        Sport.insert()
+        League.insert()
