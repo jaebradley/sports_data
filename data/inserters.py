@@ -29,4 +29,4 @@ class League:
 
     @staticmethod
     def insert():
-        LeagueModel.objects.bulk_create([LeagueModel(name=league.value.name, sport=league.value.sport) for league in LeagueObject])
+        LeagueModel.objects.bulk_create([LeagueModel(name=league.value['name'], sport=SportModel.objects.get(name=league.value['sport'].value)) for league in LeagueObject])
