@@ -74,7 +74,7 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(sport__name=sport)
 
         return queryset
-    
+
 
 class TeamViewSet(ReadOnlyModelViewSet):
     serializer_class = TeamSerializer
