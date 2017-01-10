@@ -4,6 +4,7 @@ from data.management.commands.insert_dfs_site import Command as DfsSiteInserterC
 from data.management.commands.insert_sport import Command as SportInserterCommand
 from data.management.commands.insert_league import Command as LeagueInserterCommand
 from data.management.commands.insert_team import Command as TeamInserterCommand
+from data.management.commands.insert_position import Command as PositionInserterCommand
 
 
 class Command(BaseCommand):
@@ -19,3 +20,4 @@ class Command(BaseCommand):
         SportInserterCommand.insert()
         LeagueInserterCommand.insert()
         TeamInserterCommand.insert()
+        PositionInserterCommand.insert()

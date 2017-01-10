@@ -1,5 +1,7 @@
-from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject
-from data.models import DfsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel
+from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject, \
+    Position as PositionObject
+from data.models import DfsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel, \
+    Position as PositionModel
 
 
 class DfsSite:
@@ -20,6 +22,16 @@ class Sport:
     @staticmethod
     def insert():
         SportModel.objects.bulk_create([SportModel(name=sport.value) for sport in SportObject])
+
+
+class Position:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        PositionModel.objects.bulk_create([PositionModel(name=position.value) for position in PositionObject])
 
 
 class League:

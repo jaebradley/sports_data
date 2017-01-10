@@ -21,14 +21,21 @@ class Sport(Model):
 
 
 class Position(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE, related_name='position_sport')
-    name = CharField(max_length=100)
-
-    class Meta:
-        unique_together = ('sport', 'name')
+    name = CharField(max_length=100, unique=True)
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.sport, self.name)
+        return self.name
+
+
+class SportPosition(Model):
+    sport = ForeignKey(Sport, on_delete=CASCADE)
+    position = ForeignKey(Position, on_delete=CASCADE)
+
+    class Meta:
+        unique_together = ('sport', 'position')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.sport, self.position)
 
 
 class DfsPosition(Model):
