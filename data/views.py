@@ -60,7 +60,7 @@ class LeagueViewSet(ReadOnlyModelViewSet):
 
 
 class LeaguePositionViewSet(ReadOnlyModelViewSet):
-    serializer_class = LeaguePosition
+    serializer_class = LeaguePositionSerializer
 
     def get_queryset(self):
         queryset = LeaguePosition.objects.all().order_by('position')
@@ -71,7 +71,7 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(position__name=position)
 
         if sport is not None:
-            queryset = queryset.filter(sport__name=sport)
+            queryset = queryset.filter(league__sport__name=sport)
 
         return queryset
 
