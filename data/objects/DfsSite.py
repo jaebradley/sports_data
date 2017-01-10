@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class DfsSite(Enum):
-    draft_kings = 'DraftKings'
-    fan_duel = 'FanDuel'
+    draft_kings = 'draft_kings'
+    fan_duel = 'fan_duel'
