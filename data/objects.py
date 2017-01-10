@@ -35,6 +35,29 @@ class League(Enum):
     }
 
 
+class LeaguePosition(Enum):
+    nba_point_guard = {
+        'position': Position.point_guard,
+        'league': League.nba
+    }
+    nba_shooting_guard = {
+        'position': Position.shooting_guard,
+        'league': League.nba
+    }
+    nba_small_forward = {
+        'position': Position.small_forward,
+        'league': League.nba
+    }
+    nba_power_forward = {
+        'position': Position.power_forward,
+        'league': League.nba
+    }
+    nba_center = {
+        'position': Position.center,
+        'league': League.nba
+    }
+
+
 class Team(Enum):
     atlanta_hawks = {
         'name': 'Atlanta Hawks',

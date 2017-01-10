@@ -2,8 +2,9 @@
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from data.models import DfsSite, Sport, League, Team, Position
-from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer
+from data.models import DfsSite, Sport, League, Team, Position, LeaguePosition
+from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
+    LeaguePositionSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -54,6 +55,23 @@ class LeagueViewSet(ReadOnlyModelViewSet):
 
         if sport is not None:
             queryset = queryset.filter(sport__name=sport)
+
+        return queryset
+
+
+class LeaguePositionViewSet(ReadOnlyModelViewSet):
+    serializer_class = LeaguePositionSerializer
+
+    def get_queryset(self):
+        queryset = LeaguePosition.objects.all().order_by('position')
+        position = self.request.query_params.get('position', None)
+        sport = self.request.query_params.get('sport', None)
+
+        if position is not None:
+            queryset = queryset.filter(position__name=position)
+
+        if sport is not None:
+            queryset = queryset.filter(league__sport__name=sport)
 
         return queryset
 

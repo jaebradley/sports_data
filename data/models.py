@@ -27,29 +27,6 @@ class Position(Model):
         return self.name
 
 
-class SportPosition(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE)
-    position = ForeignKey(Position, on_delete=CASCADE)
-
-    class Meta:
-        unique_together = ('sport', 'position')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.sport, self.position)
-
-
-class DfsPosition(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
-    position = ForeignKey(Position, on_delete=CASCADE)
-    dfs_site_position_id = IntegerField()
-
-    class Meta:
-        unique_together = ('site', 'position')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.site, self.position)
-
-
 class League(Model):
     sport = ForeignKey(Sport, on_delete=CASCADE)
     name = CharField(max_length=100)
@@ -59,6 +36,29 @@ class League(Model):
 
     def __unicode__(self):
         return '{0} - {1}'.format(self.sport, self.name)
+
+
+class LeaguePosition(Model):
+    league = ForeignKey(League, on_delete=CASCADE)
+    position = ForeignKey(Position, on_delete=CASCADE)
+
+    class Meta:
+        unique_together = ('league', 'position')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.league, self.position)
+
+
+class DfsLeaguePosition(Model):
+    site = ForeignKey(DfsSite, on_delete=CASCADE)
+    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
+    dfs_site_position_id = IntegerField()
+
+    class Meta:
+        unique_together = ('site', 'league_position')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.site, self.league_position)
 
 
 class Team(Model):
@@ -121,13 +121,13 @@ class DfsPlayer(Model):
 
 class PlayerPosition(Model):
     player = ForeignKey(Player, on_delete=CASCADE)
-    position = ForeignKey(Position, on_delete=CASCADE)
+    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
 
     class Meta:
-        unique_together = ('player', 'position')
+        unique_together = ('player', 'league_position')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.player, self.position)
+        return '{0} - {1}'.format(self.player, self.league_position)
 
 
 class Game(Model):
