@@ -63,6 +63,6 @@ class TeamViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(league__name=league)
 
         if sport is not None:
-            queryset = queryset.filter(sport__name=sport)
+            queryset = queryset.filter(league__sport__name=sport)
 
         return queryset
