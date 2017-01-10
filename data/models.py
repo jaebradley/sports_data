@@ -27,27 +27,27 @@ class Position(Model):
         return self.name
 
 
-class SportPosition(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE)
+class LeaguePosition(Model):
+    league = ForeignKey(League, on_delete=CASCADE)
     position = ForeignKey(Position, on_delete=CASCADE)
 
     class Meta:
-        unique_together = ('sport', 'position')
+        unique_together = ('league', 'position')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.sport, self.position)
+        return '{0} - {1}'.format(self.league, self.position)
 
 
-class DfsSportPosition(Model):
+class DfsLeaguePosition(Model):
     site = ForeignKey(DfsSite, on_delete=CASCADE)
-    sport_position = ForeignKey(SportPosition, on_delete=CASCADE)
+    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
     dfs_site_position_id = IntegerField()
 
     class Meta:
-        unique_together = ('site', 'sport_position')
+        unique_together = ('site', 'league_position')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.site, self.sport_position)
+        return '{0} - {1}'.format(self.site, self.league_position)
 
 
 class League(Model):
@@ -121,13 +121,13 @@ class DfsPlayer(Model):
 
 class PlayerPosition(Model):
     player = ForeignKey(Player, on_delete=CASCADE)
-    position = ForeignKey(Position, on_delete=CASCADE)
+    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
 
     class Meta:
-        unique_together = ('player', 'position')
+        unique_together = ('player', 'league_position')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.player, self.position)
+        return '{0} - {1}'.format(self.player, self.league_position)
 
 
 class Game(Model):
