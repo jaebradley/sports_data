@@ -1,17 +1,19 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import DfsSiteInserter
-from data.inserters import SportInserter
+from data.management.commands.insert_dfs_site import DfsSiteInserterCommand
+from data.management.commands.insert_sport import SportInserterCommand
+from data.management.commands.insert_league import LeagueInserterCommand
 
 
-class Command(BaseCommand):
+class StaticDataInserterCommand(BaseCommand):
     def __init__(self, stdout=None, stderr=None, no_color=False):
-        super(Command, self).__init__(stdout, stderr, no_color)
+        super(StaticDataInserterCommand, self).__init__(stdout, stderr, no_color)
 
     def handle(self, *args, **options):
-        Command.insert()
+        DfsSiteInserterCommand.insert()
 
     @staticmethod
     def insert():
-        DfsSiteInserter.insert()
-        SportInserter.insert()
+        DfsSiteInserterCommand.insert()
+        SportInserterCommand.insert()
+        LeagueInserterCommand.insert()
