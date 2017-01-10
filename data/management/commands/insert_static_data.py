@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters.dfs_site import DfsSiteInserter
-from data.inserters.sport import SportInserter
+from data.inserters import DfsSiteInserter
+from data.inserters import SportInserter
 
 
 class Command(BaseCommand):
