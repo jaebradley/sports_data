@@ -27,6 +27,17 @@ class Position(Model):
         return self.name
 
 
+class League(Model):
+    sport = ForeignKey(Sport, on_delete=CASCADE)
+    name = CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('sport', 'name')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.sport, self.name)
+
+
 class LeaguePosition(Model):
     league = ForeignKey(League, on_delete=CASCADE)
     position = ForeignKey(Position, on_delete=CASCADE)
@@ -48,17 +59,6 @@ class DfsLeaguePosition(Model):
 
     def __unicode__(self):
         return '{0} - {1}'.format(self.site, self.league_position)
-
-
-class League(Model):
-    sport = ForeignKey(Sport, on_delete=CASCADE)
-    name = CharField(max_length=100)
-
-    class Meta:
-        unique_together = ('sport', 'name')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.sport, self.name)
 
 
 class Team(Model):
