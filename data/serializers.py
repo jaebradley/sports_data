@@ -16,6 +16,8 @@ class SportSerializer(ModelSerializer):
 
 
 class LeagueSerializer(ModelSerializer):
+    sport = SportSerializer()
+
     class Meta:
         model = League()
         fields = ('name', 'sport')
