@@ -12,6 +12,14 @@ class Sport(Enum):
     hockey = 'Hockey'
 
 
+class Position(Enum):
+    point_guard = 'Point Guard'
+    shooting_guard = 'Shooting Guard'
+    small_forward = 'Small Forward'
+    power_forward = 'Power Forward'
+    center = 'Center'
+
+
 class League(Enum):
     nba = {
         'name': 'NBA',
