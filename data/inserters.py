@@ -51,13 +51,13 @@ class LeaguePosition:
 
     @staticmethod
     def insert():
-        league_positions = set()
+        league_positions = list()
         for league_position in LeaguePositionObject:
+            sport = SportModel.objects.get(name=league_position.value['league'].value['sport'].value)
+            position = PositionModel.objects.get(name=league_position.value['position'].value)
             league = LeagueModel.objects.get(name=league_position.value['league'].value['name'],
-                                             sport=SportModel.objects.get(name=league_position.value['league'].value['sport'].value))
-            league_position = LeaguePosition(league=league,
-                                             position=PositionModel.objects.get(name=league_position.value['position'].value))
-            league_positions.add(league_position)
+                                             sport=sport)
+            league_positions.append(LeaguePositionModel(league=league, position=position))
         LeaguePositionModel.objects.bulk_create(league_positions)
 
 
