@@ -11,3 +11,17 @@ class Sport(Enum):
     football = 'football'
     hockey = 'hockey'
 
+
+class League(Enum):
+    nba = {
+        'name': 'nba',
+        'sport': Sport.basketball
+    }
+    nfl = {
+        'name': 'nfl',
+        'sport': Sport.football
+    }
+    nhl = {
+        'name': 'nhl',
+        'sport': Sport.hockey
+    }
