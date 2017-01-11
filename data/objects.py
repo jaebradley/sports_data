@@ -40,8 +40,8 @@ class League(Enum):
 class Season(Enum):
     nba_2016 = {
         'league': League.nba,
-        'start_time': pytz.timezone('America/New_York').localize(datetime.datetime(2015, 10, 28, 10, 0, 0, 0)),
-        'end_time': pytz.timezone('America/New_York').localize(datetime.datetime(2016, 6, 20, 10, 0, 0, 0))
+        'start_time': pytz.timezone('America/New_York').localize(datetime.datetime(2015, 10, 28, 20, 0, 0, 0)),
+        'end_time': pytz.timezone('America/New_York').localize(datetime.datetime(2016, 6, 20, 20, 0, 0, 0))
     }
 
 
