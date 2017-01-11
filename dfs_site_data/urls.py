@@ -17,7 +17,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from data.views import DfsSiteViewSet, SportViewSet, LeagueViewSet, TeamViewSet, PositionViewSet, LeaguePositionViewSet
+from data.views import DfsSiteViewSet, SportViewSet, LeagueViewSet, TeamViewSet, PositionViewSet, LeaguePositionViewSet, \
+    DfsLeagueViewSet
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -27,6 +28,7 @@ router.register(r'leagues', LeagueViewSet, base_name='leagues')
 router.register(r'teams', TeamViewSet, base_name='teams')
 router.register(r'positions', PositionViewSet, base_name='positions')
 router.register(r'league-positions', LeaguePositionViewSet, base_name='league-positions')
+router.register(r'daily-fantasy-sports-sites-leagues', DfsLeagueViewSet, base_name='daily-fantasy-sports-sites-leagues')
 
 
 urlpatterns = [

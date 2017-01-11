@@ -38,6 +38,18 @@ class League(Model):
         return '{0} - {1}'.format(self.sport, self.name)
 
 
+class DfsLeague(Model):
+    site = ForeignKey(DfsSite, on_delete=CASCADE)
+    league = ForeignKey(League, on_delete=CASCADE)
+    identifier = BigIntegerField()
+
+    class Meta:
+        unique_together = ('site', 'league')
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.site, self.league, self.identifier)
+
+
 class LeaguePosition(Model):
     league = ForeignKey(League, on_delete=CASCADE)
     position = ForeignKey(Position, on_delete=CASCADE)
