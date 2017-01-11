@@ -150,7 +150,7 @@ class TeamSeasonViewSet(ReadOnlyModelViewSet):
         end_time = self.request.query_params.get('end_time', None)
 
         if league is not None:
-            queryset = queryset.filter(league__name=league)
+            queryset = queryset.filter(team__league__name=league)
 
         if team is not None:
             queryset = queryset.filter(team__name=team)
