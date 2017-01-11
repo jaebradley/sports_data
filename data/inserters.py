@@ -114,8 +114,9 @@ class TeamSeason:
 
     @staticmethod
     def insert():
+        # TODO: fix when there are multiple leagues - currently only NBA
         team_seasons = list()
         for season in SeasonModel.objects.all():
-            for team in TeamModel.objects.get(league=season.league):
+            for team in TeamModel.objects.filter(league=season.league):
                 team_seasons.append(TeamSeasonModel(team=team, season=season))
         TeamSeasonModel.objects.bulk_create(team_seasons)
