@@ -1,9 +1,9 @@
 from draft_kings_client.draft_kings_client import Sport as DraftKingsLeague
 
 from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject, \
-    Position as PositionObject, LeaguePosition as LeaguePositionObject
+    Position as PositionObject, LeaguePosition as LeaguePositionObject, Season as SeasonObject
 from data.models import DfsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel, \
-    Position as PositionModel, LeaguePosition as LeaguePositionModel, DfsLeague as DfsLeagueModel
+    Position as PositionModel, LeaguePosition as LeaguePositionModel, DfsLeague as DfsLeagueModel, Season as SeasonModel
 
 
 class DfsSite:
@@ -90,3 +90,17 @@ class DfsLeague:
             if league is not None:
                 dfs_leagues.append(DfsLeagueModel(site=site, league=league, identifier=draft_kings_league.get_id()))
         DfsLeagueModel.objects.bulk_create(dfs_leagues)
+
+
+class Season:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        seasons = list()
+        for season in SeasonObject:
+            league = LeagueModel.objects.get(name=season.value['league'].value['name'])
+            seasons.append(SeasonModel(league=league, start_time=season.value['start_time'], end_time=season.value['end_time']))
+        SeasonModel.objects.bulk_create(seasons)

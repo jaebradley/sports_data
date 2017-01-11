@@ -1,4 +1,6 @@
 from enum import Enum
+import datetime
+import pytz
 
 
 class DfsSite(Enum):
@@ -32,6 +34,14 @@ class League(Enum):
     nhl = {
         'name': 'NHL',
         'sport': Sport.hockey
+    }
+
+
+class Season(Enum):
+    nba_2016 = {
+        'league': League.nba,
+        'start_time': pytz.timezone('America/New_York').localize(datetime.datetime(2015, 10, 28, 10, 0, 0, 0)),
+        'end_time': pytz.timezone('America/New_York').localize(datetime.datetime(2016, 6, 20, 10, 0, 0, 0))
     }
 
 
