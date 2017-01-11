@@ -1,10 +1,12 @@
 # Create your views here.
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from datetime import datetime
+import pytz
 
-from data.models import DfsSite, Sport, League, Team, Position, LeaguePosition, DfsLeague
+from data.models import DfsSite, Sport, League, Team, Position, LeaguePosition, DfsLeague, Season
 from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
-    LeaguePositionSerializer, DfsLeagueSerializer
+    LeaguePositionSerializer, DfsLeagueSerializer, SeasonSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -110,5 +112,27 @@ class TeamViewSet(ReadOnlyModelViewSet):
 
         if sport is not None:
             queryset = queryset.filter(league__sport__name=sport)
+
+        return queryset
+
+
+class SeasonViewSet(ReadOnlyModelViewSet):
+    serializer_class = SeasonSerializer
+
+    def get_queryset(self):
+        queryset = Season.objects.all().order_by('-start_time', '-end_time')
+
+        league = self.request.query_params.get('league', None)
+        start_time = self.request.query_params.get('start_time', None)
+        end_time = self.request.query_params.get('end_time', None)
+
+        if league is not None:
+            queryset = queryset.filter(league__name=league)
+
+        if start_time is not None:
+            queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
+
+        if end_time is not None:
+            queryset = queryset.filter(end_time__lte=datetime.fromtimestamp(float(end_time), pytz.utc))
 
         return queryset
