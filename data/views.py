@@ -63,14 +63,14 @@ class DfsLeagueViewSet(ReadOnlyModelViewSet):
     serializer_class = DfsLeagueSerializer
 
     def get_queryset(self):
-        queryset = DfsLeague.objects.all().order_by('league', 'position')
-        league = self.request.query_params.get('league', None)
+        queryset = DfsLeague.objects.all().order_by('site', 'league')
         site = self.request.query_params.get('site', None)
-        if league is not None:
-            queryset = queryset.filter(league__name=league)
-
+        league = self.request.query_params.get('league', None)
         if site is not None:
             queryset = queryset.filter(site__name=site)
+
+        if league is not None:
+            queryset = queryset.filter(league__name=league)
 
         return queryset
 
