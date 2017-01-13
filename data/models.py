@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from django.db.models import Model, BigIntegerField, IntegerField, CharField, DateTimeField, ForeignKey, CASCADE
 
 
-class DfsSite(Model):
+class DailyFantasySportsSite(Model):
     name = CharField(max_length=100, unique=True)
 
     def __unicode__(self):
@@ -50,7 +50,7 @@ class LeaguePosition(Model):
 
 
 class DfsLeaguePosition(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
+    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
     league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
     site_identifier = IntegerField()
 
@@ -107,18 +107,6 @@ class Player(Model):
         return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
 
 
-class DfsPlayer(Model):
-    player = ForeignKey(Player, on_delete=CASCADE)
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
-    site_identifier = BigIntegerField()
-
-    class Meta:
-        unique_together = ('player', 'site')
-
-    def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.player, self.site, self.site_identifier)
-
-
 class PlayerPosition(Model):
     player = ForeignKey(Player, on_delete=CASCADE)
     league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
@@ -154,7 +142,7 @@ class PlayerGame(Model):
 
 
 class DailyFantasySportsSitePlayerGame(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
+    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
     player_game = ForeignKey(PlayerGame, on_delete=CASCADE)
     salary = BigIntegerField()
 
