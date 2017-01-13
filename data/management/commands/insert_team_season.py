@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import TeamSeason
+from data.inserters.static import TeamSeason
 
 
 class Command(BaseCommand):
