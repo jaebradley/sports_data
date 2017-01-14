@@ -1,6 +1,9 @@
-from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, TeamSeason as TeamSeasonModel
+from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, TeamSeason as TeamSeasonModel, \
+    Sport as SportModel, Player as PlayerModel
 
-from nba_data import Client as NbaClient, Season as NbaSeason,
+from data.objects import League as LeagueObject
+
+from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam
 
 
 class TeamSeasonInserter:
@@ -12,15 +15,12 @@ class TeamSeasonInserter:
     def insert():
         # No restrictions on certain teams for certain seasons
         # In the future this may change
-        team_seasons = list()
         for league in LeagueModel.objects.all():
             teams = TeamModel.objects.get(league=league)
             seasons = SeasonModel.objects.get(league=league)
             for season in seasons:
                 for team in teams:
-                    team_seasons.append(TeamSeasonModel(team=team, season=season))
-
-        TeamSeasonModel.objects.bulk_create(team_seasons)
+                    TeamSeasonModel.objects.get_or_create(team=team, season=season)
 
 
 class PlayersInserter:
@@ -40,9 +40,13 @@ class NbaPlayersInserter:
 
     @staticmethod
     def insert():
-        NbaClient.get_players_for_season(season=NbaSeason)
+        basketball = SportModel.objects.get(name='Basketball')
+        league = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
+        for season in SeasonModel.objects.get(league=league):
+            players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time,
+                                                                                                         end_year=season.end_time))
 
-
-    @staticmethod
-    def identify_start_year(year):
-        # Not dealing with any seasons so far that don't start in year x and end in year x + 1
+            for team in TeamModel.objects.get(league=league):
+                for team_season in TeamSeasonModel.objects.get(season=season, team=team):
+                    for player in players:
+                        PlayerModel.objects.get_or_create(team_season=team_season, name=player.name, identifier=player.id)
