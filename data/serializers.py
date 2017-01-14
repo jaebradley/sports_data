@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
-from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason
+from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, \
+    Player
 
 
 class DfsSiteSerializer(ModelSerializer):
@@ -61,3 +62,11 @@ class TeamSeasonSerializer(ModelSerializer):
     class Meta:
         model = TeamSeason()
         fields = ('team', 'season')
+
+
+class PlayerSerializer(ModelSerializer):
+    team_season = TeamSeasonSerializer()
+
+    class Meta:
+        model = Player()
+        fields = ('name', 'team_season')

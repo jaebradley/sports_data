@@ -18,7 +18,7 @@ from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
 from data.views import DfsSiteViewSet, SportViewSet, LeagueViewSet, TeamViewSet, PositionViewSet, LeaguePositionViewSet, \
-    SeasonViewSet, TeamSeasonViewSet
+    SeasonViewSet, TeamSeasonViewSet, PlayerViewSet
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -30,7 +30,7 @@ router.register(r'positions', PositionViewSet, base_name='positions')
 router.register(r'seasons', SeasonViewSet, base_name='seasons')
 router.register(r'team-seasons', TeamSeasonViewSet, base_name='team-seasons')
 router.register(r'league-positions', LeaguePositionViewSet, base_name='league-positions')
-
+router.register(r'players', PlayerViewSet, base_name='players')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
