@@ -42,11 +42,11 @@ class NbaPlayersInserter:
     def insert():
         basketball = SportModel.objects.get(name=SportObject.basketball.value)
         league = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
-        for season in SeasonModel.objects.get(league=league):
-            players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time,
-                                                                                                         end_year=season.end_time))
+        for season in SeasonModel.objects.filter(league=league):
+            players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
+                                                                                                         end_year=season.end_time.year))
 
-            for team in TeamModel.objects.get(league=league):
-                for team_season in TeamSeasonModel.objects.get(season=season, team=team):
+            for team in TeamModel.objects.filter(league=league):
+                for team_season in TeamSeasonModel.objects.filter(season=season, team=team):
                     for player in players:
                         PlayerModel.objects.get_or_create(team_season=team_season, name=player.name, identifier=player.id)
