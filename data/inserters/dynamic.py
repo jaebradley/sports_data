@@ -1,7 +1,7 @@
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, TeamSeason as TeamSeasonModel, \
     Sport as SportModel, Player as PlayerModel
 
-from data.objects import League as LeagueObject
+from data.objects import League as LeagueObject, Sport as SportObject
 
 from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam
 
@@ -40,7 +40,7 @@ class NbaPlayersInserter:
 
     @staticmethod
     def insert():
-        basketball = SportModel.objects.get(name='Basketball')
+        basketball = SportModel.objects.get(name=SportObject.basketball.value)
         league = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.get(league=league):
             players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time,
