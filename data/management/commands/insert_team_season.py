@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters.static import TeamSeason
+from data.inserters.dynamic import TeamSeasonInserter
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        TeamSeason.insert()
+        TeamSeasonInserter.insert()

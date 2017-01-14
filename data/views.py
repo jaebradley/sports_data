@@ -59,7 +59,7 @@ class LeagueViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(sport__name=sport)
 
         return queryset
-    
+
 
 class LeaguePositionViewSet(ReadOnlyModelViewSet):
     serializer_class = LeaguePositionSerializer
