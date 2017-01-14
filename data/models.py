@@ -135,10 +135,10 @@ class DailyFantasySportsSiteLeaguePosition(Model):
     site_identifier = IntegerField()
 
     class Meta:
-        unique_together = ('site', 'league_position')
+        unique_together = ('site', 'league_position', 'site_identifier')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.site, self.league_position)
+        return '{0} - {1} - {2}'.format(self.site, self.league_position, self.site_identifier)
 
 
 class DailyFantasySportsSitePlayerGame(Model):
@@ -150,7 +150,7 @@ class DailyFantasySportsSitePlayerGame(Model):
         unique_together = ('site', 'player_game')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.site, self.player_game)
+        return '{0} - {1} - {2}'.format(self.site, self.player_game, self.salary)
 
 
 class DailyFantasySportsSitePlayerGamePosition(Model):
