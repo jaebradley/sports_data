@@ -96,13 +96,13 @@ class Player(Model):
 
 
 class Game(Model):
-    home_team = ForeignKey(Team, on_delete=CASCADE, related_name='home_team')
-    away_team = ForeignKey(Team, on_delete=CASCADE, related_name='away_team')
+    home_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='home_team_season')
+    away_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='away_team_season')
     start_time = DateTimeField()
     identifier = CharField(max_length=50, unique=True)
 
     class Meta:
-        unique_together = ('home_team', 'away_team', 'start_time')
+        unique_together = ('home_team_season', 'away_team_season', 'start_time')
 
     def __unicode__(self):
         return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.start_time, self.identifier)
