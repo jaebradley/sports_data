@@ -5,9 +5,9 @@ from datetime import datetime
 import pytz
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
-    Game
+    Game, PlayerGame
 from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
-    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer
+    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, PlayerGameSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -182,8 +182,8 @@ class GameViewSet(ReadOnlyModelViewSet):
         queryset = Game.objects.all().order_by('-start_time')
 
         league = self.request.query_params.get('league', None)
-        home_team = self.request.query_params.get('home_team')
-        away_team = self.request.query_params.get('away_team')
+        home_team = self.request.query_params.get('home_team', None)
+        away_team = self.request.query_params.get('away_team', None)
         start_time = self.request.query_params.get('start_time', None)
 
         if league is not None:
@@ -197,5 +197,35 @@ class GameViewSet(ReadOnlyModelViewSet):
 
         if start_time is not None:
             queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
+
+        return queryset
+
+
+class PlayerGameViewSet(ReadOnlyModelViewSet):
+    serializer_class = PlayerGameSerializer
+
+    def get_queryset(self):
+        queryset = PlayerGame.objects.all().order_by('-game__start_time')
+
+        player = self.request.query_params.get('player', None)
+        league = self.request.query_params.get('league', None)
+        home_team = self.request.query_params.get('home_team', None)
+        away_team = self.request.query_params.get('away_team', None)
+        start_time = self.request.query_params.get('start_time', None)
+
+        if player is not None:
+            queryset = queryset.filter(player__name=player)
+
+        if league is not None:
+            queryset = queryset.filter(game__home_team__league__name=league).filter(away_team__league_name=league)
+
+        if home_team is not None:
+            queryset = queryset.filter(game__home_team__name=home_team)
+
+        if away_team is not None:
+            queryset = queryset.filter(game__away_team__name=away_team)
+
+        if start_time is not None:
+            queryset = queryset.filter(game__start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
 
         return queryset
