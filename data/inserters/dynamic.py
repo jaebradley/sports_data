@@ -81,7 +81,7 @@ class NbaGamesInserter:
                 # Get games for regular season only for now
                 games = NbaClient.get_games_for_team(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
                                                                                                        end_year=season.end_time.year),
-                                                     team= NbaTeam.get_team_by_name(name=str(team.name)))
+                                                     team=NbaTeam.get_team_by_name(name=str(team.name)))
                 for game in games:
                     GameModel.objects.get_or_create(home_team=game.matchup.home_team,
                                                     away_team=game.matchup.away_team,
