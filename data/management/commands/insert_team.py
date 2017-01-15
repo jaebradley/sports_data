@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import Team
+from data.inserters.static import TeamInserter
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        Team.insert()
+        TeamInserter.insert()

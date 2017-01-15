@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from django.db.models import Model, BigIntegerField, IntegerField, CharField, DateTimeField, ForeignKey, CASCADE
 
 
-class DfsSite(Model):
+class DailyFantasySportsSite(Model):
     name = CharField(max_length=100, unique=True)
 
     def __unicode__(self):
@@ -38,18 +38,6 @@ class League(Model):
         return '{0} - {1}'.format(self.sport, self.name)
 
 
-class DfsLeague(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
-    league = ForeignKey(League, on_delete=CASCADE)
-    identifier = BigIntegerField()
-
-    class Meta:
-        unique_together = ('site', 'league')
-
-    def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.site, self.league, self.identifier)
-
-
 class LeaguePosition(Model):
     league = ForeignKey(League, on_delete=CASCADE)
     position = ForeignKey(Position, on_delete=CASCADE)
@@ -59,18 +47,6 @@ class LeaguePosition(Model):
 
     def __unicode__(self):
         return '{0} - {1}'.format(self.league, self.position)
-
-
-class DfsLeaguePosition(Model):
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
-    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
-    dfs_site_position_id = IntegerField()
-
-    class Meta:
-        unique_together = ('site', 'league_position')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.site, self.league_position)
 
 
 class Team(Model):
@@ -108,7 +84,7 @@ class TeamSeason(Model):
 
 
 class Player(Model):
-    team_season = ForeignKey(TeamSeason, on_delete=CASCADE)
+    team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
     identifier = BigIntegerField()
 
@@ -117,18 +93,6 @@ class Player(Model):
 
     def __unicode__(self):
         return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
-
-
-class DfsPlayer(Model):
-    player = ForeignKey(Player, on_delete=CASCADE)
-    site = ForeignKey(DfsSite, on_delete=CASCADE)
-    site_identifier = BigIntegerField()
-
-    class Meta:
-        unique_together = ('player', 'site')
-
-    def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.player, self.site, self.site_identifier)
 
 
 class PlayerPosition(Model):
@@ -163,3 +127,38 @@ class PlayerGame(Model):
 
     def __unicode__(self):
         return '{0} - {1}'.format(self.player, self.game)
+
+
+class DailyFantasySportsSiteLeaguePosition(Model):
+    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
+    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
+    site_identifier = IntegerField()
+
+    class Meta:
+        unique_together = ('site', 'league_position', 'site_identifier')
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.site, self.league_position, self.site_identifier)
+
+
+class DailyFantasySportsSitePlayerGame(Model):
+    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
+    player_game = ForeignKey(PlayerGame, on_delete=CASCADE)
+    salary = BigIntegerField()
+
+    class Meta:
+        unique_together = ('site', 'player_game')
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.site, self.player_game, self.salary)
+
+
+class DailyFantasySportsSitePlayerGamePosition(Model):
+    daily_fantasy_sports_site_player_game = ForeignKey(DailyFantasySportsSitePlayerGame, on_delete=CASCADE)
+    daily_fantasy_sports_site_league_position = ForeignKey(DailyFantasySportsSiteLeaguePosition, on_delete=CASCADE)
+
+    class Meta:
+        unique_together = ('daily_fantasy_sports_site_player_game', 'daily_fantasy_sports_site_league_position')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.daily_fantasy_sports_site_player_game, self.daily_fantasy_sports_site_league_position)

@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import DfsLeague
+from data.management.commands.insert_team_season import Command as TeamSeasonInserterCommand
+from data.management.commands.insert_players import Command as PlayersInserterCommand
 
 
 class Command(BaseCommand):
@@ -12,4 +13,5 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        DfsLeague.insert_draft_kings_leagues()
+        TeamSeasonInserterCommand.insert()
+        PlayersInserterCommand.insert()

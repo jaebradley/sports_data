@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import Sport
+from data.inserters.static import SportInserter
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        Sport.insert()
+        SportInserter.insert()

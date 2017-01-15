@@ -6,7 +6,6 @@ from data.management.commands.insert_league import Command as LeagueInserterComm
 from data.management.commands.insert_team import Command as TeamInserterCommand
 from data.management.commands.insert_position import Command as PositionInserterCommand
 from data.management.commands.insert_league_position import Command as LeaguePositionInserterCommand
-from data.management.commands.insert_draft_kings_leagues import Command as DraftKingsInserterCommand
 from data.management.commands.insert_season import Command as SeasonInserterCommand
 from data.management.commands.insert_team_season import Command as TeamSeasonInserterCommand
 
@@ -26,6 +25,5 @@ class Command(BaseCommand):
         TeamInserterCommand.insert()
         PositionInserterCommand.insert()
         LeaguePositionInserterCommand.insert()
-        DraftKingsInserterCommand.insert()
         SeasonInserterCommand.insert()
         TeamSeasonInserterCommand.insert()

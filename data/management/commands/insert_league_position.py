@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import LeaguePosition
+from data.inserters.static import LeaguePositionInserter
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        LeaguePosition.insert()
+        LeaguePositionInserter.insert()

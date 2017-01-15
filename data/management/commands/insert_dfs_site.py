@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters import DfsSite
+from data.inserters.static import DfsSiteInserter
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        DfsSite.insert()
+        DfsSiteInserter.insert()
