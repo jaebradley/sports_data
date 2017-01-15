@@ -85,4 +85,5 @@ class NbaGamesInserter:
                 for game in games:
                     GameModel.objects.get_or_create(home_team=game.matchup.home_team,
                                                     away_team=game.matchup.away_team,
-                                                    start_time=game.date)
+                                                    start_time=game.date,
+                                                    identifier=game.nba_id)
