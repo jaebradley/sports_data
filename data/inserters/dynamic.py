@@ -1,5 +1,5 @@
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, TeamSeason as TeamSeasonModel, \
-    Sport as SportModel, Player as PlayerModel
+    Sport as SportModel, Player as PlayerModel, Game as GameModel
 
 from data.objects import League as LeagueObject, Sport as SportObject
 
@@ -57,17 +57,17 @@ class NbaPlayersInserter:
                                                               identifier=player.id)
 
 
-class GameInserter:
+class GamesInserter:
 
     def __init__(self):
         pass
 
     @staticmethod
     def insert():
-        NbaGameInserter.insert()
+        NbaGamesInserter.insert()
 
 
-class NbaGameInserter:
+class NbaGamesInserter:
 
     def __init__(self):
         pass
@@ -78,6 +78,11 @@ class NbaGameInserter:
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
             for team in TeamModel.objects.filter(league=nba):
-                NbaClient.get_games_for_team(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
-                                                                                               end_year=season.end_time.year),
-                                             team=NbaTeam.get)
+                # Get games for regular season only for now
+                games = NbaClient.get_games_for_team(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
+                                                                                                       end_year=season.end_time.year),
+                                                     team= NbaTeam.get_team_by_name(name=str(team.name)))
+                for game in games:
+                    GameModel.objects.get_or_create(home_team=game.matchup.home_team,
+                                                    away_team=game.matchup.away_team,
+                                                    start_time=game.date)
