@@ -4,9 +4,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from datetime import datetime
 import pytz
 
-from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player
+from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
+    Game
 from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
-    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer
+    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -167,6 +168,32 @@ class PlayerViewSet(ReadOnlyModelViewSet):
 
         if player is not None:
             queryset = queryset.filter(name=player)
+
+        if start_time is not None:
+            queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
+
+        return queryset
+
+
+class GameViewSet(ReadOnlyModelViewSet):
+    serializer_class = GameSerializer
+
+    def get_queryset(self):
+        queryset = Game.objects.all().order_by('-start_time')
+
+        league = self.request.query_params.get('league', None)
+        home_team = self.request.query_params.get('home_team')
+        away_team = self.request.query_params.get('away_team')
+        start_time = self.request.query_params.get('start_time', None)
+
+        if league is not None:
+            queryset = queryset.filter(home_team__league__name=league).filter(away_team__league_name=league)
+
+        if home_team is not None:
+            queryset = queryset.filter(home_team__name=home_team)
+
+        if away_team is not None:
+            queryset = queryset.filter(away_team__name=away_team)
 
         if start_time is not None:
             queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
