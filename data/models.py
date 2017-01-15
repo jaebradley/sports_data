@@ -95,17 +95,6 @@ class Player(Model):
         return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
 
 
-class PlayerPosition(Model):
-    player = ForeignKey(Player, on_delete=CASCADE)
-    league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
-
-    class Meta:
-        unique_together = ('player', 'league_position')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.player, self.league_position)
-
-
 class Game(Model):
     home_team = ForeignKey(Team, on_delete=CASCADE, related_name='home_team')
     away_team = ForeignKey(Team, on_delete=CASCADE, related_name='away_team')
