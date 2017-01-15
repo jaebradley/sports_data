@@ -73,12 +73,12 @@ class PlayerSerializer(ModelSerializer):
 
 
 class GameSerializer(ModelSerializer):
-    home_team = TeamSerializer()
-    away_team = TeamSerializer()
+    home_team_season = TeamSeasonSerializer()
+    away_team_season = TeamSeasonSerializer()
 
     class Meta:
         model = Game()
-        fields = ('home_team', 'away_team', 'start_time')
+        fields = ('home_team_season', 'away_team_season', 'start_time')
 
 
 class PlayerGameSerializer(ModelSerializer):
