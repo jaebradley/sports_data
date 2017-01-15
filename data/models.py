@@ -84,7 +84,7 @@ class TeamSeason(Model):
 
 
 class Player(Model):
-    team_season = ForeignKey(TeamSeason, on_delete=CASCADE)
+    team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
     identifier = BigIntegerField()
 
