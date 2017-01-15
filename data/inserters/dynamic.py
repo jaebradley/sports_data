@@ -83,7 +83,7 @@ class NbaGamesInserter:
                                                                                                        end_year=season.end_time.year),
                                                      team=NbaTeam.get_team_by_name(name=str(team.name)))
                 for game in games:
-                    GameModel.objects.get_or_create(home_team=game.matchup.home_team,
-                                                    away_team=game.matchup.away_team,
+                    GameModel.objects.get_or_create(home_team=TeamModel.objects.get(name=game.matchup.home_team.value),
+                                                    away_team=TeamModel.objects.get(name=game.matchup.away_team.value),
                                                     start_time=game.date,
                                                     identifier=game.nba_id)
