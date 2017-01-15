@@ -3,7 +3,7 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
 
 from data.objects import League as LeagueObject, Sport as SportObject
 
-from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam
+from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, CurrentSeasonOnly
 
 
 class TeamSeasonInserter:
@@ -44,7 +44,8 @@ class NbaPlayersInserter:
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
             players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
-                                                                                                         end_year=season.end_time.year))
+                                                                                                         end_year=season.end_time.year),
+                                                       current_season_only=CurrentSeasonOnly.no)
 
             # TODO: @jbradley to fix inefficient insertion
             for team in TeamModel.objects.filter(league=nba):
@@ -113,8 +114,12 @@ class NbaPlayerGamesInserter:
         basketball = SportModel.objects.get(name=SportObject.basketball.value)
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
-            for game in GameModel.objects.filter(home_team__team_season__season=season).filter(away_team__team_season__season=season):
-                box_score = NbaClient.get_traditional_box_score(game_id=game.identifier)
+            for game in GameModel.objects.filter(home_team_season__season=season).filter(away_team_season__season=season):
+                box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
                 for player_box_score in box_score.player_box_scores:
-                    player = PlayerModel.objects.get(identifier=player_box_score.player.id)
+                    team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
+                    team_season = TeamSeasonModel.objects.get(team=team, season=season)
+                    player, created = PlayerModel.objects.get_or_create(team_season=team_season,
+                                                                        name=player_box_score.player.name,
+                                                                        identifier=player_box_score.player.id)
                     PlayerGameModel.objects.get_or_create(player=player, game=game)
