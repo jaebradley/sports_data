@@ -1,12 +1,11 @@
-from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject, \
-    Position as PositionObject, LeaguePosition as LeaguePositionObject, Season as SeasonObject
-from data.models import DailyFantasySportsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel, \
-    Position as PositionModel, LeaguePosition as LeaguePositionModel, Season as SeasonModel
-
 import os
 import logging
 import logging.config
 
+from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject, \
+    Position as PositionObject, LeaguePosition as LeaguePositionObject, Season as SeasonObject
+from data.models import DailyFantasySportsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel, \
+    Position as PositionModel, LeaguePosition as LeaguePositionModel, Season as SeasonModel
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
