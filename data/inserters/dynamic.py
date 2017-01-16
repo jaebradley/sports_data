@@ -1,3 +1,7 @@
+import logging
+import logging.config
+import os
+
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, TeamSeason as TeamSeasonModel, \
     Sport as SportModel, Player as PlayerModel, Game as GameModel, PlayerGame as PlayerGameModel
 
@@ -5,9 +9,8 @@ from data.objects import League as LeagueObject, Sport as SportObject
 
 from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, CurrentSeasonOnly
 
-import logging
-
-logging.basicConfig(filename='dynamic-inserter.log', level=logging.INFO)
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
+logger = logging.getLogger('inserter')
 
 
 class TeamSeasonInserter:
@@ -19,15 +22,15 @@ class TeamSeasonInserter:
     def insert():
         # No restrictions on certain teams for certain seasons
         # In the future this may change
-        logging.info('Inserting team seasons')
+        logger.info('Inserting team seasons')
         for league in LeagueModel.objects.all():
-            logging.info('Inserting for league: %s' % league)
+            logger.info('Inserting for league: %s' % league)
             teams = TeamModel.objects.filter(league=league)
             seasons = SeasonModel.objects.filter(league=league)
             for season in seasons:
-                logging.info('Inserting for season: %s' % season)
+                logger.info('Inserting for season: %s' % season)
                 for team in teams:
-                    logging.info('Inserting for team: %s' % team)
+                    logger.info('Inserting for team: %s' % team)
                     TeamSeasonModel.objects.get_or_create(team=team, season=season)
 
 
