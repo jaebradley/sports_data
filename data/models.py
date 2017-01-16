@@ -86,7 +86,7 @@ class TeamSeason(Model):
 class Player(Model):
     team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
-    identifier = BigIntegerField()
+    identifier = CharField(max_length=50)
 
     class Meta:
         unique_together = ('team_season', 'name', 'identifier')
@@ -105,7 +105,7 @@ class Game(Model):
         unique_together = ('home_team_season', 'away_team_season', 'start_time')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.start_time, self.identifier)
+        return '{0} - {1} - {2}'.format(self.home_team_season, self.away_team_season, self.start_time, self.identifier)
 
 
 class PlayerGame(Model):
@@ -120,27 +120,27 @@ class PlayerGame(Model):
 
 
 class DailyFantasySportsSiteLeaguePosition(Model):
-    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
+    daily_fantasy_sports_site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
     league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
     site_identifier = IntegerField()
 
     class Meta:
-        unique_together = ('site', 'league_position', 'site_identifier')
+        unique_together = ('daily_fantasy_sports_site', 'league_position', 'site_identifier')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.site, self.league_position, self.site_identifier)
+        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.league_position, self.site_identifier)
 
 
 class DailyFantasySportsSitePlayerGame(Model):
-    site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
+    daily_fantasy_sports_site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
     player_game = ForeignKey(PlayerGame, on_delete=CASCADE)
     salary = BigIntegerField()
 
     class Meta:
-        unique_together = ('site', 'player_game')
+        unique_together = ('daily_fantasy_sports_site', 'player_game')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.site, self.player_game, self.salary)
+        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.player_game, self.salary)
 
 
 class DailyFantasySportsSitePlayerGamePosition(Model):
