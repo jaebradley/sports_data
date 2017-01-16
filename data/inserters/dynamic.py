@@ -65,7 +65,7 @@ class NbaPlayersInserter:
             for team_season in team_seasons:
                 logger.info('Team season: %s' % team_season)
                 for player in players:
-                    logger.info('Player: %s' % player)
+                    logger.info('Player: %s' % player.__dict__)
                     # Dependency between nba client and inserted team values
                     if player.team is not None and team_season.team.name == player.team.value:
                         player, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name,
@@ -103,7 +103,7 @@ class NbaGamesInserter:
                                                                                                        end_year=season.end_time.year),
                                                      team=NbaTeam.get_team_by_name(name=str(team_season.team.name)))
                 for game in games:
-                    logger.info('Inserting game: %s' % game)
+                    logger.info('Inserting game: %s' % game.__dict__)
                     home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
                     away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
                     home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)

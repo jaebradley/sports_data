@@ -86,7 +86,7 @@ class TeamSeason(Model):
 class Player(Model):
     team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
-    identifier = BigIntegerField()
+    identifier = CharField(max_length=50)
 
     class Meta:
         unique_together = ('team_season', 'name', 'identifier')
