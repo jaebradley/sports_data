@@ -68,14 +68,14 @@ class LeaguePositionInserter:
             logger.info('Inserting league position: %s' % league_position)
 
             sport = SportModel.objects.get(name=league_position.value['league'].value['sport'].value)
-            logger.info('Fetching sport: %s' % sport)
+            logger.info('Sport: %s' % sport)
 
             position = PositionModel.objects.get(name=league_position.value['position'].value)
-            logger.info('Fetching position: %s' % position)
+            logger.info('Position: %s' % position)
 
             league = LeagueModel.objects.get(name=league_position.value['league'].value['name'],
                                              sport=sport)
-            logger.info('Fetching league: %s' % league)
+            logger.info('League: %s' % league)
 
             league_positions.append(LeaguePositionModel(league=league, position=position))
         LeaguePositionModel.objects.bulk_create(league_positions)
@@ -105,9 +105,9 @@ class SeasonInserter:
         logger.info('Inserting seasons')
         seasons = list()
         for season in SeasonObject:
-            logger.info('Inserting season: %s' % season)
+            logger.info('Season: %s' % season)
             league = LeagueModel.objects.get(name=season.value['league'].value['name'])
 
-            logger.info('Fetching league: %s' % league)
+            logger.info('League: %s' % league)
             seasons.append(SeasonModel(league=league, start_time=season.value['start_time'], end_time=season.value['end_time']))
         SeasonModel.objects.bulk_create(seasons)
