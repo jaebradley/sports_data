@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import logging.config
 import os
@@ -6,10 +7,10 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
     Sport as SportModel, Player as PlayerModel, Game as GameModel, PlayerGame as PlayerGameModel, \
     DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
     DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    LeaguePosition as LeaguePositionModel
+    LeaguePosition as LeaguePositionModel, DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
 
 from data.objects import League as LeagueObject, Sport as SportObject, DfsSite as DfsSiteObject, \
-    Position as PositionObject
+    Position as PositionObject, Team as TeamObject
 
 from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, CurrentSeasonOnly
 from draft_kings_client import DraftKingsClient, Sport
@@ -195,6 +196,73 @@ class DraftKingsNbaPlayerGameInserter:
             self.center_abbreviation: PositionObject.center
         }
 
+        self.atlanta_hawks_abbreviation = 'ATL'
+        self.boston_celtics_abbreviation = 'BOS'
+        self.brooklyn_nets_abbreviation = 'BRK'
+        self.charlotte_hornets_abbreviation = 'CHA'
+        self.chicago_bulls_abbreviation = 'CHI'
+        self.cleveland_cavaliers_abbreviation = 'CLE'
+        self.dallas_mavericks_abbreviation = 'DAL'
+        self.denver_nuggest_abbreviation = 'DEN'
+        self.detroit_pistons_abbreviation = 'DET'
+        self.golden_state_warriors_abbreviation = 'GSW'
+        self.houston_rockets_abbreviation = 'HOU'
+        self.indiana_pacers_abbreviation = 'IND'
+        self.los_angeles_clippers_abbreviation = 'LAC'
+        self.los_angeles_lakers_abbreviation = 'LAL'
+        self.memphis_grizzlies_abbreviation = 'MEM'
+        self.miami_heat_abbreviation = 'MIA'
+        self.milwaukee_bucks_abbreviation = 'MIL'
+        self.minnesota_timberwolves_abbreviation = 'MIN'
+        self.new_orleans_pelicans_abbreviation = 'NOP'
+        self.new_york_knicks_abbreviation = 'NYK'
+        self.oklahoma_city_thunder_abbreviation = 'OKC'
+        self.orlando_magic_abbreviation = 'ORL'
+        self.philadelphia_76ers_abbreviation = 'PHI'
+        self.phoenix_suns_abbreviation = 'PHO'
+        self.portland_trail_blazers_abbreviation = 'POR'
+        self.sacramento_kings_abbreviation = 'SAC'
+        self.san_antonio_spurs_abbreviation = 'SAS'
+        self.toronto_raptors_abbreviation = 'TOR'
+        self.utah_jazz_abbreviation = 'UTA'
+        self.washington_wizards_abbreviation = 'WAS'
+        self.team_abbreviation_map = {
+            self.atlanta_hawks_abbreviation, TeamObject.atlanta_hawks,
+            self.boston_celtics_abbreviation, TeamObject.boston_celtics,
+            self.brooklyn_nets_abbreviation, TeamObject.brooklyn_nets,
+            self.charlotte_hornets_abbreviation, TeamObject.charlotte_hornets,
+            self.chicago_bulls_abbreviation, TeamObject.chicago_bulls,
+            self.cleveland_cavaliers_abbreviation, TeamObject.cleveland_cavaliers,
+            self.dallas_mavericks_abbreviation, TeamObject.dallas_mavericks,
+            self.denver_nuggest_abbreviation, TeamObject.denver_nuggets,
+            self.detroit_pistons_abbreviation, TeamObject.detroit_pistons,
+            self.golden_state_warriors_abbreviation, TeamObject.golden_state_warriors,
+            self.houston_rockets_abbreviation, TeamObject.houston_rockets,
+            self.indiana_pacers_abbreviation, TeamObject.indiana_pacers,
+            self.los_angeles_clippers_abbreviation, TeamObject.los_angeles_clippers,
+            self.los_angeles_lakers_abbreviation, TeamObject.los_angeles_lakers,
+            self.memphis_grizzlies_abbreviation, TeamObject.memphis_grizzlies,
+            self.miami_heat_abbreviation, TeamObject.miami_heat,
+            self.milwaukee_bucks_abbreviation, TeamObject.milwaukee_bucks,
+            self.minnesota_timberwolves_abbreviation, TeamObject.minnesota_timberwolves,
+            self.new_orleans_pelicans_abbreviation, TeamObject.new_orleans_pelicans,
+            self.new_york_knicks_abbreviation, TeamObject.new_york_knicks,
+            self.oklahoma_city_thunder_abbreviation, TeamObject.oklahoma_city_thunder,
+            self.orlando_magic_abbreviation, TeamObject.orlando_magic,
+            self.philadelphia_76ers_abbreviation, TeamObject.philadelphia_76ers,
+            self.phoenix_suns_abbreviation, TeamObject.phoenix_suns,
+            self.portland_trail_blazers_abbreviation, TeamObject.portland_trail_blazers,
+            self.sacramento_kings_abbreviation, TeamObject.sacramento_kings,
+            self.san_antonio_spurs_abbreviation, TeamObject.san_antonio_spurs,
+            self.toronto_raptors_abbreviation, TeamObject.toronto_raptors,
+            self.utah_jazz_abbreviation, TeamObject.utah_jazz,
+            self.washington_wizards_abbreviation, TeamObject.washington_wizards
+        }
+
+    @staticmethod
+    def translate_timestamp(timestamp):
+        return datetime.fromtimestamp(int(''.join(timestamp for timestamp in timestamp if timestamp.isdigit())) / 1e3)
+
     def insert(self):
         for contest_draft_group in DraftKingsClient.get_contests(sport=Sport.nba).draft_groups:
             logger.info('Draft Group: %s' % contest_draft_group.__dict__)
@@ -219,3 +287,27 @@ class DraftKingsNbaPlayerGameInserter:
                                                                                                            league_position=league_position,
                                                                                                            site_identifier=draft_group_player.position.position_id)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
+
+    def insert_draft_kings_nba_team_season(self, draft_group_player):
+        nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
+        draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
+
+        draft_group_home_team = draft_group_player.match_up.home_team
+        draft_group_player_timestamp = DraftKingsNbaPlayerGameInserter.translate_timestamp(timestamp=draft_group_player.draft_group_start_timestamp)
+        home_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.home_team.abbreviation))
+        away_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.away_team.abbreviation))
+        season = SeasonModel.objects.get(league=nba, start_time__lte=draft_group_player_timestamp,
+                                         end_time__gte=draft_group_player_timestamp)
+        home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)
+        away_team_season = TeamSeasonModel.objects.get(team=away_team, season=season)
+        game = GameModel.objects.get(home_team_season=home_team_season, away_team_season=away_team_season,
+                                     start_time__contains=draft_group_player_timestamp.date())
+
+        player_team_season = home_team_season if draft_group_player.team_id == draft_group_home_team.team_id else away_team_season
+
+        # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play for same team
+        player = PlayerModel.objects.get(team_season=player_team_season, name=draft_group_player.first_name + draft_group_player.last_name)
+        player_game = PlayerGameModel.objects.get(player=player, game=game)
+        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings, player_game=player_game, salary=draft_group_player.salary)
+        return dfs_player_game
+
