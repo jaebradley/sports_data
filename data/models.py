@@ -105,7 +105,7 @@ class Game(Model):
         unique_together = ('home_team_season', 'away_team_season', 'start_time')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.start_time, self.identifier)
+        return '{0} - {1} - {2}'.format(self.home_team_season, self.away_team_season, self.start_time, self.identifier)
 
 
 class PlayerGame(Model):

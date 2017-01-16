@@ -112,7 +112,7 @@ class NbaGamesInserter:
                                                                     away_team_season=away_team_season,
                                                                     start_time=game.date,
                                                                     identifier=game.nba_id)
-                    logger.info('Created: %s | Game: %s', (created, game))
+                    logger.info('Created: %s | Game: %s', created, game)
 
 
 class PlayerGamesInserter:
@@ -142,13 +142,15 @@ class NbaPlayerGamesInserter:
                 logger.info('Fetching box score for game: %s' % game)
                 box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
                 for player_box_score in box_score.player_box_scores:
-                    logger.info('Inserting box score: %s' % player_box_score)
+                    logger.info('Inserting box score: %s' % player_box_score.__dict__)
+
                     team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
                     team_season = TeamSeasonModel.objects.get(team=team, season=season)
+
                     player, created = PlayerModel.objects.get_or_create(team_season=team_season,
                                                                         name=player_box_score.player.name,
                                                                         identifier=player_box_score.player.id)
-                    logger.info('Created: %s | Player: %s', (created, player))
+                    logger.info('Created: %s | Player: %s', created, player)
 
                     player_game, created = PlayerGameModel.objects.get_or_create(player=player, game=game)
-                    logger.info('Created: %s | Player Game: %s', (created, player_game))
+                    logger.info('Created: %s | Player Game: %s', created, player_game)
