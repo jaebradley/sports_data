@@ -8,6 +8,7 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
 from data.objects import League as LeagueObject, Sport as SportObject
 
 from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, CurrentSeasonOnly
+from draft_kings_client import DraftKingsClient, Sport
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
@@ -154,3 +155,36 @@ class NbaPlayerGamesInserter:
 
                     player_game, created = PlayerGameModel.objects.get_or_create(player=player, game=game)
                     logger.info('Created: %s | Player Game: %s', created, player_game)
+
+
+class DailyFantasySportsSitePlayerGameInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        DraftKingsPlayerGameInserter.insert()
+
+
+class DraftKingsPlayerGameInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        DraftKingsNbaPlayerGameInserter.insert()
+
+
+class DraftKingsNbaPlayerGameInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        for contest in DraftKingsClient.get_contests(sport=Sport.nba):
+            logger.info('DraftKings Contest: %s' % contest.__dict__)
+            for draft_group in DraftKingsClient.get_available_players(contest.draft_group_id):
+                logger.info('Draft Group: %s' % draft_group.__dict__)
