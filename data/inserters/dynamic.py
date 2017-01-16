@@ -268,11 +268,22 @@ class DraftKingsNbaPlayerGameInserter:
             logger.info('Draft Group: %s' % contest_draft_group.__dict__)
             for draft_group_player in DraftKingsClient.get_available_players(contest_draft_group.id).player_list:
                 logger.info('Draft Group Player: %s' % draft_group_player.__dict__)
-                self.insert_draft_kings_nba_positions(draft_group_player=draft_group_player)
+
+                draft_kings_league_positions = self.insert_draft_kings_nba_positions(draft_group_player=draft_group_player)
+                logger.info('DraftKings League Positions: %s' % draft_kings_league_positions)
+
+                draft_kings_player_game = self.insert_draft_kings_nba_player_game(draft_group_player=draft_group_player)
+                logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
+                for draft_kings_league_position in draft_kings_league_positions:
+                    logger.info('DraftKings League Position: %s' % draft_kings_league_position)
+                    dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_or_create(daily_fantasy_sports_site_player_game=draft_kings_player_game,
+                                                                                                                            daily_fantasy_sports_site_league_position=draft_kings_league_position)
+                    logger.info('Created: %s | Daily Fantasy Sports Site Player Game Position: %s', created, dfs_player_game_position)
 
     def insert_draft_kings_nba_positions(self, draft_group_player):
         nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
         draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
+        draft_kings_league_positions = list()
 
         for position_abbreviation in draft_group_player.position.position_name.split('/'):
             logger.info('Position abbreviation: %s' % position_abbreviation)
@@ -287,27 +298,49 @@ class DraftKingsNbaPlayerGameInserter:
                                                                                                            league_position=league_position,
                                                                                                            site_identifier=draft_group_player.position.position_id)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
+            draft_kings_league_positions.append(dfs_league_position)
 
-    def insert_draft_kings_nba_team_season(self, draft_group_player):
+        return draft_kings_league_positions
+
+    def insert_draft_kings_nba_player_game(self, draft_group_player):
         nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
         draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
 
         draft_group_home_team = draft_group_player.match_up.home_team
         draft_group_player_timestamp = DraftKingsNbaPlayerGameInserter.translate_timestamp(timestamp=draft_group_player.draft_group_start_timestamp)
+        logger.info('Draft Group Player Timestamp: %s' % draft_group_player_timestamp)
+
         home_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.home_team.abbreviation))
+        logger.info('Home Team: %s' % home_team)
+
         away_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.away_team.abbreviation))
+        logger.info('Away Team: %s' % away_team)
+
         season = SeasonModel.objects.get(league=nba, start_time__lte=draft_group_player_timestamp,
                                          end_time__gte=draft_group_player_timestamp)
+        logger.info('Season: %s' % season)
+
         home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)
+        logger.info('Home Team Season: %s' % home_team_season)
+
         away_team_season = TeamSeasonModel.objects.get(team=away_team, season=season)
+        logger.info('Away Team Season: %s' % away_team_season)
+
         game = GameModel.objects.get(home_team_season=home_team_season, away_team_season=away_team_season,
                                      start_time__contains=draft_group_player_timestamp.date())
+        logger.info('Game: %s' % game)
 
         player_team_season = home_team_season if draft_group_player.team_id == draft_group_home_team.team_id else away_team_season
 
         # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play for same team
         player = PlayerModel.objects.get(team_season=player_team_season, name=draft_group_player.first_name + draft_group_player.last_name)
+        logger.info('Player: %s' % player)
+
         player_game = PlayerGameModel.objects.get(player=player, game=game)
+        logger.info('Player Game: %s' % player_game)
+
         dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings, player_game=player_game, salary=draft_group_player.salary)
+        logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
+
         return dfs_player_game
 
