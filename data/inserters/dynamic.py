@@ -227,41 +227,41 @@ class DraftKingsNbaPlayerGameInserter:
         self.utah_jazz_abbreviation = 'UTA'
         self.washington_wizards_abbreviation = 'WAS'
         self.team_abbreviation_map = {
-            self.atlanta_hawks_abbreviation, TeamObject.atlanta_hawks,
-            self.boston_celtics_abbreviation, TeamObject.boston_celtics,
-            self.brooklyn_nets_abbreviation, TeamObject.brooklyn_nets,
-            self.charlotte_hornets_abbreviation, TeamObject.charlotte_hornets,
-            self.chicago_bulls_abbreviation, TeamObject.chicago_bulls,
-            self.cleveland_cavaliers_abbreviation, TeamObject.cleveland_cavaliers,
-            self.dallas_mavericks_abbreviation, TeamObject.dallas_mavericks,
-            self.denver_nuggest_abbreviation, TeamObject.denver_nuggets,
-            self.detroit_pistons_abbreviation, TeamObject.detroit_pistons,
-            self.golden_state_warriors_abbreviation, TeamObject.golden_state_warriors,
-            self.houston_rockets_abbreviation, TeamObject.houston_rockets,
-            self.indiana_pacers_abbreviation, TeamObject.indiana_pacers,
-            self.los_angeles_clippers_abbreviation, TeamObject.los_angeles_clippers,
-            self.los_angeles_lakers_abbreviation, TeamObject.los_angeles_lakers,
-            self.memphis_grizzlies_abbreviation, TeamObject.memphis_grizzlies,
-            self.miami_heat_abbreviation, TeamObject.miami_heat,
-            self.milwaukee_bucks_abbreviation, TeamObject.milwaukee_bucks,
-            self.minnesota_timberwolves_abbreviation, TeamObject.minnesota_timberwolves,
-            self.new_orleans_pelicans_abbreviation, TeamObject.new_orleans_pelicans,
-            self.new_york_knicks_abbreviation, TeamObject.new_york_knicks,
-            self.oklahoma_city_thunder_abbreviation, TeamObject.oklahoma_city_thunder,
-            self.orlando_magic_abbreviation, TeamObject.orlando_magic,
-            self.philadelphia_76ers_abbreviation, TeamObject.philadelphia_76ers,
-            self.phoenix_suns_abbreviation, TeamObject.phoenix_suns,
-            self.portland_trail_blazers_abbreviation, TeamObject.portland_trail_blazers,
-            self.sacramento_kings_abbreviation, TeamObject.sacramento_kings,
-            self.san_antonio_spurs_abbreviation, TeamObject.san_antonio_spurs,
-            self.toronto_raptors_abbreviation, TeamObject.toronto_raptors,
-            self.utah_jazz_abbreviation, TeamObject.utah_jazz,
-            self.washington_wizards_abbreviation, TeamObject.washington_wizards
+            self.atlanta_hawks_abbreviation: TeamObject.atlanta_hawks,
+            self.boston_celtics_abbreviation: TeamObject.boston_celtics,
+            self.brooklyn_nets_abbreviation: TeamObject.brooklyn_nets,
+            self.charlotte_hornets_abbreviation: TeamObject.charlotte_hornets,
+            self.chicago_bulls_abbreviation: TeamObject.chicago_bulls,
+            self.cleveland_cavaliers_abbreviation: TeamObject.cleveland_cavaliers,
+            self.dallas_mavericks_abbreviation: TeamObject.dallas_mavericks,
+            self.denver_nuggest_abbreviation: TeamObject.denver_nuggets,
+            self.detroit_pistons_abbreviation: TeamObject.detroit_pistons,
+            self.golden_state_warriors_abbreviation: TeamObject.golden_state_warriors,
+            self.houston_rockets_abbreviation: TeamObject.houston_rockets,
+            self.indiana_pacers_abbreviation: TeamObject.indiana_pacers,
+            self.los_angeles_clippers_abbreviation: TeamObject.los_angeles_clippers,
+            self.los_angeles_lakers_abbreviation: TeamObject.los_angeles_lakers,
+            self.memphis_grizzlies_abbreviation: TeamObject.memphis_grizzlies,
+            self.miami_heat_abbreviation: TeamObject.miami_heat,
+            self.milwaukee_bucks_abbreviation: TeamObject.milwaukee_bucks,
+            self.minnesota_timberwolves_abbreviation: TeamObject.minnesota_timberwolves,
+            self.new_orleans_pelicans_abbreviation: TeamObject.new_orleans_pelicans,
+            self.new_york_knicks_abbreviation: TeamObject.new_york_knicks,
+            self.oklahoma_city_thunder_abbreviation: TeamObject.oklahoma_city_thunder,
+            self.orlando_magic_abbreviation: TeamObject.orlando_magic,
+            self.philadelphia_76ers_abbreviation: TeamObject.philadelphia_76ers,
+            self.phoenix_suns_abbreviation: TeamObject.phoenix_suns,
+            self.portland_trail_blazers_abbreviation: TeamObject.portland_trail_blazers,
+            self.sacramento_kings_abbreviation: TeamObject.sacramento_kings,
+            self.san_antonio_spurs_abbreviation: TeamObject.san_antonio_spurs,
+            self.toronto_raptors_abbreviation: TeamObject.toronto_raptors,
+            self.utah_jazz_abbreviation: TeamObject.utah_jazz,
+            self.washington_wizards_abbreviation: TeamObject.washington_wizards
         }
 
     @staticmethod
     def translate_timestamp(timestamp):
-        return datetime.fromtimestamp(int(''.join(timestamp for timestamp in timestamp if timestamp.isdigit())) / 1e3)
+        return datetime.fromtimestamp(timestamp / 1e3)
 
     def insert(self):
         for contest_draft_group in DraftKingsClient.get_contests(sport=Sport.nba).draft_groups:
@@ -296,7 +296,7 @@ class DraftKingsNbaPlayerGameInserter:
 
             dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings,
                                                                                                            league_position=league_position,
-                                                                                                           site_identifier=draft_group_player.position.position_id)
+                                                                                                           identifier=draft_group_player.position.position_id)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
             draft_kings_league_positions.append(dfs_league_position)
 
@@ -307,13 +307,23 @@ class DraftKingsNbaPlayerGameInserter:
         draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
 
         draft_group_home_team = draft_group_player.match_up.home_team
+        draft_group_away_team = draft_group_player.match_up.away_team
+
         draft_group_player_timestamp = DraftKingsNbaPlayerGameInserter.translate_timestamp(timestamp=draft_group_player.draft_group_start_timestamp)
         logger.info('Draft Group Player Timestamp: %s' % draft_group_player_timestamp)
 
-        home_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.home_team.abbreviation))
+        home_team_name = self.team_abbreviation_map.get(draft_group_home_team.team_abbreviation).value['name']
+        logger.info('Home Team Name: %s' % home_team_name)
+
+        home_team = TeamModel.objects.get(league=nba,
+                                          name=home_team_name)
         logger.info('Home Team: %s' % home_team)
 
-        away_team = TeamModel.objects.get(league=nba, name=self.team_abbreviation_map.get(draft_group_player.match_up.away_team.abbreviation))
+        away_team_name = self.team_abbreviation_map.get(draft_group_away_team.team_abbreviation).value['name']
+        logger.info('Away Team Name: %s' % away_team_name)
+
+        away_team = TeamModel.objects.get(league=nba,
+                                          name=away_team_name)
         logger.info('Away Team: %s' % away_team)
 
         season = SeasonModel.objects.get(league=nba, start_time__lte=draft_group_player_timestamp,
