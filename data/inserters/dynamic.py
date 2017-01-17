@@ -12,7 +12,7 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
 from data.objects import League as LeagueObject, Sport as SportObject, DfsSite as DfsSiteObject, \
     Position as PositionObject, Team as TeamObject
 
-from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, CurrentSeasonOnly
+from nba_data import Client as NbaClient, Season as NbaSeason, Team as NbaTeam, DateRange as NbaDateRange
 from draft_kings_client import DraftKingsClient, Sport
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
@@ -108,13 +108,11 @@ class NbaGamesInserter:
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
             logger.info('Season: %s' % season)
-            for team_season in TeamSeasonModel.objects.filter(season=season):
-                logger.info('Fetching games from NBA API for team season: %s' % team_season)
-                # Get games for regular season only for now
-                games = NbaClient.get_games_for_team(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
-                                                                                                       end_year=season.end_time.year),
-                                                     team=NbaTeam.get_team_by_name(name=str(team_season.team.name)))
-                for game in games:
+            game_counts = NbaClient.get_game_counts_in_date_range(NbaDateRange(start=season.start_time.date(),
+                                                                               end=season.end_time.date()))
+            for date_value, game_count in game_counts.items():
+                logger.info('%s games on %s', game_count, date_value)
+                for game in NbaClient.get_games_for_date(date_value=date_value):
                     logger.info('Inserting game: %s' % game.__dict__)
                     home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
                     away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
@@ -122,8 +120,8 @@ class NbaGamesInserter:
                     away_team_season = TeamSeasonModel.objects.get(team=away_team, season=season)
                     game, created = GameModel.objects.get_or_create(home_team_season=home_team_season,
                                                                     away_team_season=away_team_season,
-                                                                    start_time=game.date,
-                                                                    identifier=game.nba_id)
+                                                                    start_time=game.start_time,
+                                                                    identifier=game.game_id)
                     logger.info('Created: %s | Game: %s', created, game)
 
 
