@@ -63,20 +63,26 @@ class NbaPlayersInserter:
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
             logger.info('Fetching players from NBA API for season: %s' % season)
-            players = NbaClient.get_players_for_season(season=NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
-                                                                                                         end_year=season.end_time.year),
-                                                       current_season_only=CurrentSeasonOnly.no)
+            query_season = NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
+                                                                      end_year=season.end_time.year)
+            for player in NbaClient.get_players(season=query_season):
+                logger.info('Player: %s' % player.__dict__)
+                for player_team_season in player.team_seasons:
+                    logger.info('Player Team Season: %s' % player_team_season.__dict__)
+                    # TODO: @jbradley add this as a utility function in nba data client project
+                    if NbaSeason.get_start_year_by_season(season=player_team_season.season_range.start) \
+                            <= NbaSeason.get_start_year_by_season(season=query_season) \
+                            <= NbaSeason.get_start_year_by_season(season=player_team_season.season_range.end):
 
-            team_seasons = TeamSeasonModel.objects.filter(season=season)
-            for team_season in team_seasons:
-                logger.info('Team season: %s' % team_season)
-                for player in players:
-                    logger.info('Player: %s' % player.__dict__)
-                    # Dependency between nba client and inserted team values
-                    if player.team is not None and team_season.team.name == player.team.value:
-                        player, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name,
-                                                                            identifier=player.id)
-                        logger.info('Created: %s | Player: %s' % (created, player))
+                        team = TeamModel.objects.get(league=nba, name=player_team_season.team.value)
+                        logger.info('Team: %s' % team)
+
+                        team_season = TeamSeasonModel.objects.get(season=season, team=team)
+                        logger.info('Team Season: %s' % team_season)
+
+                        player_object, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name,
+                                                                                   identifier=player.player_id)
+                        logger.info('Created: %s | Player: %s' % (created, player_object))
 
 
 class GamesInserter:
