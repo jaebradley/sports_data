@@ -114,15 +114,17 @@ class NbaGamesInserter:
                 logger.info('%s games on %s', game_count, date_value)
                 for game in NbaClient.get_games_for_date(date_value=date_value):
                     logger.info('Inserting game: %s' % game.__dict__)
-                    home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
-                    away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
-                    home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)
-                    away_team_season = TeamSeasonModel.objects.get(team=away_team, season=season)
-                    game, created = GameModel.objects.get_or_create(home_team_season=home_team_season,
-                                                                    away_team_season=away_team_season,
-                                                                    start_time=game.start_time,
-                                                                    identifier=game.game_id)
-                    logger.info('Created: %s | Game: %s', created, game)
+                    # TODO: @jbradley deal with All Star game
+                    if game.matchup.home_team is not None and game.matchup.away_team is not None:
+                        home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
+                        away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
+                        home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)
+                        away_team_season = TeamSeasonModel.objects.get(team=away_team, season=season)
+                        game, created = GameModel.objects.get_or_create(home_team_season=home_team_season,
+                                                                        away_team_season=away_team_season,
+                                                                        start_time=game.start_time,
+                                                                        identifier=game.game_id)
+                        logger.info('Created: %s | Game: %s', created, game)
 
 
 class PlayerGamesInserter:
@@ -157,10 +159,8 @@ class NbaPlayerGamesInserter:
                     team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
                     team_season = TeamSeasonModel.objects.get(team=team, season=season)
 
-                    player, created = PlayerModel.objects.get_or_create(team_season=team_season,
-                                                                        name=player_box_score.player.name,
-                                                                        identifier=player_box_score.player.id)
-                    logger.info('Created: %s | Player: %s', created, player)
+                    # For NBA players, team season and identifier are enough
+                    player = PlayerModel.objects.get(team_season=team_season, identifier=player_box_score.player.id)
 
                     player_game, created = PlayerGameModel.objects.get_or_create(player=player, game=game)
                     logger.info('Created: %s | Player Game: %s', created, player_game)
