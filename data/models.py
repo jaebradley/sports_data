@@ -100,7 +100,7 @@ class Game(Model):
     home_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='home_team_season')
     away_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='away_team_season')
     start_time = DateTimeField()
-    identifier = CharField(max_length=50, unique=True)
+    identifier = CharField(max_length=50)
 
     class Meta:
         unique_together = ('home_team_season', 'away_team_season', 'start_time')
@@ -134,14 +134,15 @@ class DailyFantasySportsSiteLeaguePosition(Model):
 
 class DailyFantasySportsSitePlayerGame(Model):
     daily_fantasy_sports_site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
-    player_game = ForeignKey(PlayerGame, on_delete=CASCADE)
+    player = ForeignKey(Player, on_delete=CASCADE)
+    game = ForeignKey(Game, on_delete=CASCADE)
     salary = DecimalField(max_digits=20, decimal_places=2)
 
     class Meta:
-        unique_together = ('daily_fantasy_sports_site', 'player_game')
+        unique_together = ('daily_fantasy_sports_site', 'player', 'game')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.player_game, self.salary)
+        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.player, self.game, self.salary)
 
 
 class DailyFantasySportsSitePlayerGamePosition(Model):

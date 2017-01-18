@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from datetime import datetime
 import logging
 import logging.config
@@ -80,7 +84,7 @@ class NbaPlayersInserter:
                         team_season = TeamSeasonModel.objects.get(season=season, team=team)
                         logger.info('Team Season: %s' % team_season)
 
-                        player_object, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name,
+                        player_object, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name.strip(),
                                                                                    identifier=player.player_id)
                         logger.info('Created: %s | Player: %s' % (created, player_object))
 
@@ -116,6 +120,9 @@ class NbaGamesInserter:
                     logger.info('Inserting game: %s' % game.__dict__)
                     # TODO: @jbradley deal with All Star game
                     if game.matchup.home_team is not None and game.matchup.away_team is not None:
+                        logger.info('Game Id: %s' % game.game_id)
+                        logger.info('Home Team: %s vs. Away Team: %s @ %s',
+                                    game.matchup.home_team, game.matchup.away_team, game.start_time)
                         home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
                         away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
                         home_team_season = TeamSeasonModel.objects.get(team=home_team, season=season)
@@ -156,11 +163,23 @@ class NbaPlayerGamesInserter:
                 for player_box_score in box_score.player_box_scores:
                     logger.info('Inserting box score: %s' % player_box_score.__dict__)
 
+                    logger.info('Fetching team: %s' % player_box_score.player.team.value)
                     team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
+
+                    logger.info('Fetching team: %s and season: %s', team, season)
                     team_season = TeamSeasonModel.objects.get(team=team, season=season)
 
                     # For NBA players, team season and identifier are enough
-                    player = PlayerModel.objects.get(team_season=team_season, identifier=player_box_score.player.id)
+                    # Because the players endpoint is a view of the players and their teams at query time
+                    # Miss out on player status at various points within a season
+                    logger.info('Fetching player: %s' % player_box_score.player.__dict__)
+                    try:
+                        player = PlayerModel.objects.get(team_season=team_season, identifier=player_box_score.player.id)
+                    except PlayerModel.DoesNotExist:
+                        logger.info('Player does not exist so creating instead: %s' % player_box_score.player.__dict__)
+                        player = PlayerModel(team_season=team_season, identifier=player_box_score.player.id,
+                                             name=player_box_score.player.name)
+                        player.save()
 
                     player_game, created = PlayerGameModel.objects.get_or_create(player=player, game=game)
                     logger.info('Created: %s | Player Game: %s', created, player_game)
@@ -209,7 +228,7 @@ class DraftKingsNbaPlayerGameInserter:
         self.dallas_mavericks_abbreviation = 'DAL'
         self.denver_nuggest_abbreviation = 'DEN'
         self.detroit_pistons_abbreviation = 'DET'
-        self.golden_state_warriors_abbreviation = 'GSW'
+        self.golden_state_warriors_abbreviation = 'GS'
         self.houston_rockets_abbreviation = 'HOU'
         self.indiana_pacers_abbreviation = 'IND'
         self.los_angeles_clippers_abbreviation = 'LAC'
@@ -218,8 +237,8 @@ class DraftKingsNbaPlayerGameInserter:
         self.miami_heat_abbreviation = 'MIA'
         self.milwaukee_bucks_abbreviation = 'MIL'
         self.minnesota_timberwolves_abbreviation = 'MIN'
-        self.new_orleans_pelicans_abbreviation = 'NOP'
-        self.new_york_knicks_abbreviation = 'NYK'
+        self.new_orleans_pelicans_abbreviation = 'NO'
+        self.new_york_knicks_abbreviation = 'NY'
         self.oklahoma_city_thunder_abbreviation = 'OKC'
         self.orlando_magic_abbreviation = 'ORL'
         self.philadelphia_76ers_abbreviation = 'PHI'
@@ -261,6 +280,22 @@ class DraftKingsNbaPlayerGameInserter:
             self.toronto_raptors_abbreviation: TeamObject.toronto_raptors,
             self.utah_jazz_abbreviation: TeamObject.utah_jazz,
             self.washington_wizards_abbreviation: TeamObject.washington_wizards
+        }
+
+        self.t_j_mcconnell = 'T.J. McConnell'
+        self.sergio_rodriguez = 'Sergio Rodríguez'
+        self.glenn_robinson = 'Glenn Robinson III'
+        self.c_j_miles = 'C.J. Miles'
+        self.nene = 'Nene Hilario'
+        self.guillermo_hernangomez = 'Guillermo Hernangómez'
+
+        self.player_name_map = {
+            self.t_j_mcconnell: 'TJ McConnell',
+            self.sergio_rodriguez: 'Sergio Rodriguez',
+            self.glenn_robinson: 'Glenn Robinson',
+            self.c_j_miles: 'CJ Miles',
+            self.nene: 'Nene',
+            self.guillermo_hernangomez: 'Willy Hernangomez',
         }
 
     @staticmethod
@@ -311,19 +346,22 @@ class DraftKingsNbaPlayerGameInserter:
         draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
 
         draft_group_home_team = draft_group_player.match_up.home_team
+        logger.info('Draft Group Home Team: %s' % draft_group_home_team.__dict__)
+
         draft_group_away_team = draft_group_player.match_up.away_team
+        logger.info('Draft Group Away Team: %s' % draft_group_away_team.__dict__)
 
         draft_group_player_timestamp = DraftKingsNbaPlayerGameInserter.translate_timestamp(timestamp=draft_group_player.draft_group_start_timestamp)
         logger.info('Draft Group Player Timestamp: %s' % draft_group_player_timestamp)
 
-        home_team_name = self.team_abbreviation_map.get(draft_group_home_team.team_abbreviation).value['name']
+        home_team_name = self.team_abbreviation_map.get(draft_group_home_team.team_abbreviation.upper()).value['name']
         logger.info('Home Team Name: %s' % home_team_name)
 
         home_team = TeamModel.objects.get(league=nba,
                                           name=home_team_name)
         logger.info('Home Team: %s' % home_team)
 
-        away_team_name = self.team_abbreviation_map.get(draft_group_away_team.team_abbreviation).value['name']
+        away_team_name = self.team_abbreviation_map.get(draft_group_away_team.team_abbreviation.upper()).value['name']
         logger.info('Away Team Name: %s' % away_team_name)
 
         away_team = TeamModel.objects.get(league=nba,
@@ -346,14 +384,25 @@ class DraftKingsNbaPlayerGameInserter:
 
         player_team_season = home_team_season if draft_group_player.team_id == draft_group_home_team.team_id else away_team_season
 
-        # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play for same team
-        player = PlayerModel.objects.get(team_season=player_team_season, name=draft_group_player.first_name + draft_group_player.last_name)
+        player_name = draft_group_player.first_name + " " + draft_group_player.last_name
+        logger.info('Player Name: %s' % player_name)
+
+        # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play
+        # for same team
+        player_name_translation = self.player_name_map.get(player_name)
+        logger.info('Player Name Translation: %s' % player_name_translation)
+
+        if player_name_translation is None:
+            player = PlayerModel.objects.get(team_season=player_team_season, name=player_name)
+        else:
+            logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, player_name)
+            player = PlayerModel.objects.get(team_season=player_team_season, name=player_name_translation)
+
         logger.info('Player: %s' % player)
 
-        player_game = PlayerGameModel.objects.get(player=player, game=game)
-        logger.info('Player Game: %s' % player_game)
-
-        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings, player_game=player_game, salary=draft_group_player.salary)
+        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings,
+                                                                                               player=player, game=game,
+                                                                                               salary=draft_group_player.salary)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
 
         return dfs_player_game
