@@ -390,20 +390,27 @@ class DraftKingsNbaPlayerGameInserter:
 
         # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play
         # for same team
-        player_name_translation = self.player_name_map.get(player_name)
-        logger.info('Player Name Translation: %s' % player_name_translation)
 
-        if player_name_translation is None:
-            player = PlayerModel.objects.get(team_season=player_team_season, name=player_name)
-        else:
-            logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, player_name)
-            player = PlayerModel.objects.get(team_season=player_team_season, name=player_name_translation)
+        try:
+            player = PlayerModel.objects.get(team_season=player_team_season, jersey=draft_group_player.jersey_number)
+        except PlayerModel.MultipleObjectsReturned:
+            logger.info('Cannot identify player by team season: %s and jersey: %s', player_team_season, draft_group_player.jersey_number)
+
+            player_name_translation = self.player_name_map.get(player_name)
+            logger.info('Player Name Translation: %s' % player_name_translation)
+
+            if player_name_translation is None:
+                player = PlayerModel.objects.get(team_season=player_team_season, name=player_name)
+            else:
+                logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, player_name)
+                player = PlayerModel.objects.get(team_season=player_team_season, name=player_name_translation)
 
         logger.info('Player: %s' % player)
 
         dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(daily_fantasy_sports_site=draft_kings,
                                                                                                player=player, game=game,
-                                                                                               salary=draft_group_player.salary)
+                                                                                               salary=draft_group_player.salary,
+                                                                                               site_name=player_name)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
 
         return dfs_player_game
