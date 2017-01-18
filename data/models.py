@@ -88,9 +88,10 @@ class Player(Model):
     team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
     identifier = CharField(max_length=50)
+    jersey = BigIntegerField()
 
     class Meta:
-        unique_together = ('team_season', 'name', 'identifier')
+        unique_together = ('team_season', 'identifier')
 
     def __unicode__(self):
         return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
@@ -137,12 +138,13 @@ class DailyFantasySportsSitePlayerGame(Model):
     player = ForeignKey(Player, on_delete=CASCADE)
     game = ForeignKey(Game, on_delete=CASCADE)
     salary = DecimalField(max_digits=20, decimal_places=2)
+    site_name = CharField(max_length=250)
 
     class Meta:
         unique_together = ('daily_fantasy_sports_site', 'player', 'game')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.player, self.game, self.salary)
+        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.player, self.game, self.salary, self.site_name)
 
 
 class DailyFantasySportsSitePlayerGamePosition(Model):
