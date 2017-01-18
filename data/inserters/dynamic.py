@@ -85,7 +85,8 @@ class NbaPlayersInserter:
                         logger.info('Team Season: %s' % team_season)
 
                         player_object, created = PlayerModel.objects.get_or_create(team_season=team_season, name=player.name.strip(),
-                                                                                   identifier=player.player_id)
+                                                                                   identifier=player.player_id,
+                                                                                   jersey=player.jersey)
                         logger.info('Created: %s | Player: %s' % (created, player_object))
 
 
