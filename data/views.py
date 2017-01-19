@@ -5,10 +5,11 @@ from datetime import datetime
 import pytz
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
-    Game, PlayerGame, DailyFantasySportsSiteLeaguePosition
+    Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup
 from data.serializers import DailyFantasySportsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
     LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, \
-    PlayerGameSerializer, DailyFantasySportsSiteLeaguePositionSerializer
+    PlayerGameSerializer, DailyFantasySportsSiteLeaguePositionSerializer, \
+    DailyFantasySportsSiteLeaguePositionGroupSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -252,5 +253,29 @@ class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
 
         if position is not None:
             queryset = queryset.filter(league_position__position__name=position)
+
+        return queryset
+
+
+class DailyFantasySportsSiteLeaguePositionGroupViewSet(ReadOnlyModelViewSet):
+    serializer_class = DailyFantasySportsSiteLeaguePositionGroupSerializer
+
+    def get_queryset(self):
+        queryset = DailyFantasySportsSiteLeaguePositionGroup.objects.all('daily_fantasy_sports_site_league_position__daily_fantasy_sports_site__name',
+                                                                         'daily_fantasy_sports_site_league_position__league_position__league__name',
+                                                                         'daily_fantasy_sports_site_league_position__league_position__position__name')
+
+        daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
+        league = self.request.query_params.get('league', None)
+        position = self.request.query_params.get('position', None)
+
+        if daily_fantasy_sports_site is not None:
+            queryset = queryset.filter(daily_fantasy_sports_site_league_position__daily_fantasy_sports_site__name=daily_fantasy_sports_site)
+
+        if league is not None:
+            queryset = queryset.filter(daily_fantasy_sports_site_league_position__league_position__league__name=league)
+
+        if position is not None:
+            queryset = queryset.filter(daily_fantasy_sports_site_league_position__league_position__position__name=position)
 
         return queryset
