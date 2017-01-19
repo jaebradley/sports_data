@@ -236,9 +236,9 @@ class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSiteLeaguePositionSerializer
 
     def get_queryset(self):
-        queryset = DailyFantasySportsSiteLeaguePosition.objects.all().orderby('daily_fantasy_sports_site__name',
-                                                                              'league_position__league_name',
-                                                                              'league_position__position_name')
+        queryset = DailyFantasySportsSiteLeaguePosition.objects.all().order_by('daily_fantasy_sports_site__name',
+                                                                              'league_position__league__name',
+                                                                              'league_position__position__name')
 
         daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
         league = self.request.query_params.get('league', None)
