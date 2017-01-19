@@ -287,7 +287,7 @@ class DailyFantasySportsSitePlayerGameViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSitePlayerGameSerializer
 
     def get_queryset(self):
-        queryset = DailyFantasySportsSitePlayerGame().objects.all().order_by('daily_fantasy_sports_site__name',
+        queryset = DailyFantasySportsSitePlayerGame.objects.all().order_by('daily_fantasy_sports_site__name',
                                                                              'player__name', '-game__start_time',
                                                                              '-salary')
         daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
