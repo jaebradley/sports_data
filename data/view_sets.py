@@ -5,11 +5,12 @@ from datetime import datetime
 import pytz
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
-    Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup
+    Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
+    DailyFantasySportsSitePlayerGame
 from data.serializers import DailyFantasySportsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
     LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, \
     PlayerGameSerializer, DailyFantasySportsSiteLeaguePositionSerializer, \
-    DailyFantasySportsSiteLeaguePositionGroupSerializer
+    DailyFantasySportsSiteLeaguePositionGroupSerializer, DailyFantasySportsSitePlayerGameSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -278,5 +279,36 @@ class DailyFantasySportsSiteLeaguePositionGroupViewSet(ReadOnlyModelViewSet):
 
         if position is not None:
             queryset = queryset.filter(daily_fantasy_sports_site_league_position__league_position__position__name=position)
+
+        return queryset
+
+
+class DailyFantasySportsSitePlayerGameViewSet(ReadOnlyModelViewSet):
+    serializer_class = DailyFantasySportsSitePlayerGameSerializer
+
+    def get_queryset(self):
+        queryset = DailyFantasySportsSitePlayerGame().objects.all().order_by('daily_fantasy_sports_site__name',
+                                                                             'player__name', '-game__start_time',
+                                                                             '-salary')
+        daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
+        player = self.request.query_params.get('player', None)
+        start_time = self.request.query_params.get('start_time', None)
+        max_salary = self.request.query_params.get('max_salary', None)
+        min_salary = self.request.query_params.get('min_salary', None)
+
+        if daily_fantasy_sports_site is not None:
+            queryset = queryset.filter(daily_fantasy_sports_site__name=daily_fantasy_sports_site)
+
+        if player is not None:
+            queryset = queryset.filter(player__name=player)
+
+        if start_time is not None:
+            queryset = queryset.filter(game__start_time=datetime.fromtimestamp(float(start_time), pytz.utc))
+
+        if max_salary is not None:
+            queryset = queryset.filter(salary__lte=float(max_salary))
+
+        if min_salary is not None:
+            queryset = queryset.filter(salary__gte=float(min_salary))
 
         return queryset
