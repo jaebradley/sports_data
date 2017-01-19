@@ -18,4 +18,6 @@ class Command(BaseCommand):
         TeamSeasonInserterCommand.insert()
         PlayersInserterCommand.insert()
         GamesInserterCommand.insert()
-        PlayerGamesInserterCommand.insert()
+
+        # TODO: @jbradley is player games necessary? Ignoring this for now.
+        # PlayerGamesInserterCommand.insert()
