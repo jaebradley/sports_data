@@ -248,9 +248,9 @@ class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(daily_fantasy_sports_site__name=daily_fantasy_sports_site)
 
         if league is not None:
-            queryset = queryset.filter(league_position__league_name=league)
+            queryset = queryset.filter(league_position__league__name=league)
 
         if position is not None:
-            queryset = queryset.filter(league_position__position_name=position)
+            queryset = queryset.filter(league_position__position__name=position)
 
         return queryset
