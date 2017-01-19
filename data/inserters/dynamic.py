@@ -246,7 +246,7 @@ class DraftKingsNbaPlayerGameInserter:
         self.phoenix_suns_abbreviation = 'PHO'
         self.portland_trail_blazers_abbreviation = 'POR'
         self.sacramento_kings_abbreviation = 'SAC'
-        self.san_antonio_spurs_abbreviation = 'SAS'
+        self.san_antonio_spurs_abbreviation = 'SA'
         self.toronto_raptors_abbreviation = 'TOR'
         self.utah_jazz_abbreviation = 'UTA'
         self.washington_wizards_abbreviation = 'WAS'
