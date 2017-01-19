@@ -1,7 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, \
-    Player, Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup
+    Player, Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
+    DailyFantasySportsSitePlayerGame
 
 
 class DailyFantasySportsSiteSerializer(ModelSerializer):
@@ -105,3 +106,13 @@ class DailyFantasySportsSiteLeaguePositionGroupSerializer(ModelSerializer):
     class Meta:
         model = DailyFantasySportsSiteLeaguePositionGroup()
         fields = ('daily_fantasy_sports_site_league_position', 'identifier')
+
+
+class DailyFantasySportsSitePlayerGameSerializer(ModelSerializer):
+    daily_fantasy_sports_site = DailyFantasySportsSiteSerializer()
+    player = PlayerSerializer()
+    game = GameSerializer()
+
+    class Meta:
+        model = DailyFantasySportsSitePlayerGame()
+        fields = ('daily_fantasy_sports_site', 'player', 'game', 'salary', 'site_name')
