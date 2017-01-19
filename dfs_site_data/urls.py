@@ -21,7 +21,8 @@ from data.view_sets import SportViewSet, LeagueViewSet, TeamViewSet, PositionVie
     SeasonViewSet, TeamSeasonViewSet, PlayerViewSet, GameViewSet, PlayerGameViewSet
 from data.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site_detail, \
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
-    daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail
+    daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
+    daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -42,13 +43,18 @@ urlpatterns = [
     url(r'^daily-fantasy-sports-sites/(?P<pk>[0-9]+)/$', daily_fantasy_sports_site_detail,
         name='daily_fantasy_sports_site_detail'),
 
-    url(r'^daily-fantasy-sports-sites/league-positions/$', daily_fantasy_sports_site_league_position_list,
+    url(r'^daily-fantasy-sports-sites/leagues/positions/$', daily_fantasy_sports_site_league_position_list,
         name='daily_fantasy_sports_site_league_position_list'),
-    url(r'^daily-fantasy-sports-sites/league-positions/(?P<pk>[0-9]+)/$',
+    url(r'^daily-fantasy-sports-sites/leagues/positions/(?P<pk>[0-9]+)/$',
         daily_fantasy_sports_site_league_position_detail, name='daily_fantasy_sports_site_league_position_detail'),
 
-    url(r'^daily-fantasy-sports-sites/league-positions/groups/', daily_fantasy_sports_site_league_position_group_list,
+    url(r'^daily-fantasy-sports-sites/leagues/positions/groups/', daily_fantasy_sports_site_league_position_group_list,
         name='daily_fantasy_sports_site_league_position_group_list'),
-    url(r'^daily-fantasy-sports-sites/league-positions/groups/(?P<pk>[0-9]+)/$',
+    url(r'^daily-fantasy-sports-sites/leagues/positions/groups/(?P<pk>[0-9]+)/$',
         daily_fantasy_sports_site_league_position_group_detail, name='daily_fantasy_sports_site_league_position_group_detail'),
+
+    url(r'^daily-fantasy-sports-sites/games/players/$', daily_fantasy_sports_site_player_game_list,
+        name='daily_fantasy_sports_site_player_game_list'),
+    url(r'^daily-fantasy-sports-sites/games/players/(?P<pk>[0-9]+)/$',
+        daily_fantasy_sports_site_player_game_detail, name='daily_fantasy_sports_site_player_game_detail'),
 ]
