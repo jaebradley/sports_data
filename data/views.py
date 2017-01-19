@@ -5,9 +5,10 @@ from datetime import datetime
 import pytz
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
-    Game, PlayerGame
+    Game, PlayerGame, DailyFantasySportsSiteLeaguePosition
 from data.serializers import DailyFantasySportsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
-    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, PlayerGameSerializer
+    LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, \
+    PlayerGameSerializer, DailyFantasySportsSiteLeaguePositionSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
@@ -227,5 +228,29 @@ class PlayerGameViewSet(ReadOnlyModelViewSet):
 
         if start_time is not None:
             queryset = queryset.filter(game__start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
+
+        return queryset
+
+
+class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
+    serializer_class = DailyFantasySportsSiteLeaguePositionSerializer
+
+    def get_queryset(self):
+        queryset = DailyFantasySportsSiteLeaguePosition.objects.all().orderby('daily_fantasy_sports_site__name',
+                                                                              'league_position__league_name',
+                                                                              'league_position__position_name')
+
+        daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
+        league = self.request.query_params.get('league', None)
+        position = self.request.query_params.get('position', None)
+
+        if daily_fantasy_sports_site is not None:
+            queryset = queryset.filter(daily_fantasy_sports_site__name=daily_fantasy_sports_site)
+
+        if league is not None:
+            queryset = queryset.filter(league_position__league_name=league)
+
+        if position is not None:
+            queryset = queryset.filter(league_position__position_name=position)
 
         return queryset
