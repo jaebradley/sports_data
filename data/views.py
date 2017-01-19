@@ -6,12 +6,12 @@ import pytz
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, Player, \
     Game, PlayerGame
-from data.serializers import DfsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
+from data.serializers import DailyFantasySportsSiteSerializer, SportSerializer, LeagueSerializer, TeamSerializer, PositionSerializer, \
     LeaguePositionSerializer, SeasonSerializer, TeamSeasonSerializer, PlayerSerializer, GameSerializer, PlayerGameSerializer
 
 
 class DfsSiteViewSet(ReadOnlyModelViewSet):
-    serializer_class = DfsSiteSerializer
+    serializer_class = DailyFantasySportsSiteSerializer
 
     def get_queryset(self):
         queryset = DailyFantasySportsSite.objects.all().order_by('name')
