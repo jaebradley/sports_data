@@ -96,4 +96,4 @@ class DailyFantasySportsSiteLeaguePositionSerializer(ModelSerializer):
 
     class Meta:
         model = DailyFantasySportsSiteLeaguePosition()
-        fields = ('daily_fantasy_sports_site', 'league_position', 'identifier')
+        fields = ('daily_fantasy_sports_site', 'league_position')

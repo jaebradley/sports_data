@@ -124,13 +124,20 @@ class PlayerGame(Model):
 class DailyFantasySportsSiteLeaguePosition(Model):
     daily_fantasy_sports_site = ForeignKey(DailyFantasySportsSite, on_delete=CASCADE)
     league_position = ForeignKey(LeaguePosition, on_delete=CASCADE)
-    identifier = IntegerField()
 
     class Meta:
-        unique_together = ('daily_fantasy_sports_site', 'league_position', 'identifier')
+        unique_together = ('daily_fantasy_sports_site', 'league_position')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.daily_fantasy_sports_site, self.league_position, self.identifier)
+        return '{0} - {1}'.format(self.daily_fantasy_sports_site, self.league_position)
+
+
+class DailyFantasySportsSiteLeaguePositionGroup(Model):
+    daily_fantasy_sports_site_league_position = ForeignKey(DailyFantasySportsSiteLeaguePosition, on_delete=CASCADE)
+    identifier = IntegerField()
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.daily_fantasy_sports_site_league_position, self.identifier)
 
 
 class DailyFantasySportsSitePlayerGame(Model):
@@ -149,10 +156,10 @@ class DailyFantasySportsSitePlayerGame(Model):
 
 class DailyFantasySportsSitePlayerGamePosition(Model):
     daily_fantasy_sports_site_player_game = ForeignKey(DailyFantasySportsSitePlayerGame, on_delete=CASCADE)
-    daily_fantasy_sports_site_league_position = ForeignKey(DailyFantasySportsSiteLeaguePosition, on_delete=CASCADE)
+    daily_fantasy_sports_site_league_position_group = ForeignKey(DailyFantasySportsSiteLeaguePositionGroup, on_delete=CASCADE)
 
     class Meta:
-        unique_together = ('daily_fantasy_sports_site_player_game', 'daily_fantasy_sports_site_league_position')
+        unique_together = ('daily_fantasy_sports_site_player_game', 'daily_fantasy_sports_site_league_position_group')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.daily_fantasy_sports_site_player_game, self.daily_fantasy_sports_site_league_position)
+        return '{0} - {1}'.format(self.daily_fantasy_sports_site_player_game, self.daily_fantasy_sports_site_league_position_group)
