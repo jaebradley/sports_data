@@ -11,7 +11,8 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
     Sport as SportModel, Player as PlayerModel, Game as GameModel, PlayerGame as PlayerGameModel, \
     DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
     DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    LeaguePosition as LeaguePositionModel, DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
+    LeaguePosition as LeaguePositionModel, DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, \
+    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
 
 from data.objects import League as LeagueObject, Sport as SportObject, DfsSite as DfsSiteObject, \
     Position as PositionObject, Team as TeamObject
@@ -309,23 +310,24 @@ class DraftKingsNbaPlayerGameInserter:
             for draft_group_player in DraftKingsClient.get_available_players(contest_draft_group.id).player_list:
                 logger.info('Draft Group Player: %s' % draft_group_player.__dict__)
 
-                draft_kings_league_positions = self.insert_draft_kings_nba_positions(draft_group_player=draft_group_player)
-                logger.info('DraftKings League Positions: %s' % draft_kings_league_positions)
+                draft_kings_league_position_groups = self.insert_draft_kings_nba_positions(draft_group_player=draft_group_player)
+                logger.info('DraftKings League Position Groups: %s' % draft_kings_league_position_groups)
 
                 draft_kings_player_game = self.insert_draft_kings_nba_player_game(draft_group_player=draft_group_player)
                 logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
-                for draft_kings_league_position in draft_kings_league_positions:
-                    logger.info('DraftKings League Position: %s' % draft_kings_league_position)
+                for draft_kings_league_position_group in draft_kings_league_position_groups:
+                    logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
+
                     dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_or_create(
                             daily_fantasy_sports_site_player_game=draft_kings_player_game,
-                            daily_fantasy_sports_site_league_position=draft_kings_league_position)
+                            daily_fantasy_sports_site_league_position_group=draft_kings_league_position_group)
                     logger.info('Created: %s | Daily Fantasy Sports Site Player Game Position: %s',
                                 created, dfs_player_game_position)
 
     def insert_draft_kings_nba_positions(self, draft_group_player):
         nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
         draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
-        draft_kings_league_positions = list()
+        draft_kings_league_position_groups = list()
 
         for position_abbreviation in draft_group_player.position.position_name.split('/'):
             logger.info('Position abbreviation: %s' % position_abbreviation)
@@ -337,12 +339,20 @@ class DraftKingsNbaPlayerGameInserter:
             logger.info('League position: %s' % league_position)
 
             dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_or_create(
-                    daily_fantasy_sports_site=draft_kings, league_position=league_position,
-                    identifier=draft_group_player.position.position_id)
+                    daily_fantasy_sports_site=draft_kings, league_position=league_position)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
-            draft_kings_league_positions.append(dfs_league_position)
 
-        return draft_kings_league_positions
+            dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_or_create(
+                daily_fantasy_sports_site_league_position=dfs_league_position,
+                identifier=draft_group_player.position.position_id
+            )
+
+            logger.info('Created: %s | Daily Fantasy Sports Site League Position Group: %s',
+                        created, dfs_league_position_group)
+
+            draft_kings_league_position_groups.append(dfs_league_position_group)
+
+        return draft_kings_league_position_groups
 
     def insert_draft_kings_nba_player_game(self, draft_group_player):
         nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
