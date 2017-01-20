@@ -156,7 +156,7 @@ class DraftKingsNbaPlayerGameInserter:
 
         self.atlanta_hawks_abbreviation = 'ATL'
         self.boston_celtics_abbreviation = 'BOS'
-        self.brooklyn_nets_abbreviation = 'BRK'
+        self.brooklyn_nets_abbreviation = 'BKN'
         self.charlotte_hornets_abbreviation = 'CHA'
         self.chicago_bulls_abbreviation = 'CHI'
         self.cleveland_cavaliers_abbreviation = 'CLE'
@@ -220,7 +220,6 @@ class DraftKingsNbaPlayerGameInserter:
         self.t_j_mcconnell = 'T.J. McConnell'
         self.sergio_rodriguez = 'Sergio Rodríguez'
         self.glenn_robinson = 'Glenn Robinson III'
-        self.c_j_miles = 'C.J. Miles'
         self.nene = 'Nene Hilario'
         self.guillermo_hernangomez = 'Guillermo Hernangómez'
 
@@ -228,7 +227,6 @@ class DraftKingsNbaPlayerGameInserter:
             self.t_j_mcconnell: 'TJ McConnell',
             self.sergio_rodriguez: 'Sergio Rodriguez',
             self.glenn_robinson: 'Glenn Robinson',
-            self.c_j_miles: 'CJ Miles',
             self.nene: 'Nene',
             self.guillermo_hernangomez: 'Willy Hernangomez',
         }
@@ -303,15 +301,13 @@ class DraftKingsNbaPlayerGameInserter:
         home_team_name = self.team_abbreviation_map.get(draft_group_home_team.team_abbreviation.upper()).value['name']
         logger.info('Home Team Name: %s' % home_team_name)
 
-        home_team = TeamModel.objects.get(league=nba,
-                                          name=home_team_name)
+        home_team = TeamModel.objects.get(league=nba, name=home_team_name)
         logger.info('Home Team: %s' % home_team)
 
         away_team_name = self.team_abbreviation_map.get(draft_group_away_team.team_abbreviation.upper()).value['name']
         logger.info('Away Team Name: %s' % away_team_name)
 
-        away_team = TeamModel.objects.get(league=nba,
-                                          name=away_team_name)
+        away_team = TeamModel.objects.get(league=nba, name=away_team_name)
         logger.info('Away Team: %s' % away_team)
 
         season = SeasonModel.objects.get(league=nba, start_time__lte=draft_group_player_timestamp,
@@ -339,10 +335,10 @@ class DraftKingsNbaPlayerGameInserter:
             logger.info('Player Name Translation: %s' % player_name_translation)
 
             if player_name_translation is None:
-                player = PlayerModel.objects.get(team=player_team, name=player_name)
+                player = PlayerModel.objects.get(team=player_team, name=player_name, jersey=draft_group_player.jersey_number)
             else:
                 logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, player_name)
-                player = PlayerModel.objects.get(taem=player_team, name=player_name_translation)
+                player = PlayerModel.objects.get(team=player_team, name=player_name_translation, jersey=draft_group_player.jersey_number)
 
         logger.info('Player: %s' % player)
 
