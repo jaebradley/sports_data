@@ -72,7 +72,7 @@ class GameSerializer(ModelSerializer):
     class Meta:
         model = Game()
         fields = ('home_team', 'away_team', 'season', 'start_time')
-        
+
 
 class DailyFantasySportsSiteLeaguePositionSerializer(ModelSerializer):
     daily_fantasy_sports_site = DailyFantasySportsSiteSerializer()
