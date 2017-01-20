@@ -331,7 +331,7 @@ class DraftKingsNbaPlayerGameInserter:
         # for same team
 
         try:
-            player = PlayerModel.objects.get(team_season=player_team, jersey=draft_group_player.jersey_number)
+            player = PlayerModel.objects.get(team=player_team, jersey=draft_group_player.jersey_number)
         except PlayerModel.MultipleObjectsReturned:
             logger.info('Cannot identify player: %s and jersey: %s', player_team, draft_group_player.jersey_number)
 
@@ -339,10 +339,10 @@ class DraftKingsNbaPlayerGameInserter:
             logger.info('Player Name Translation: %s' % player_name_translation)
 
             if player_name_translation is None:
-                player = PlayerModel.objects.get(team_season=player_team, name=player_name)
+                player = PlayerModel.objects.get(team=player_team, name=player_name)
             else:
                 logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, player_name)
-                player = PlayerModel.objects.get(team_season=player_team, name=player_name_translation)
+                player = PlayerModel.objects.get(taem=player_team, name=player_name_translation)
 
         logger.info('Player: %s' % player)
 
