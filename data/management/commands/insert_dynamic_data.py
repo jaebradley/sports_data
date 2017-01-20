@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from data.management.commands.insert_team_season import Command as TeamSeasonInserterCommand
 from data.management.commands.insert_players import Command as PlayersInserterCommand
 from data.management.commands.insert_games import Command as GamesInserterCommand
 from data.management.commands.insert_player_games import Command as PlayerGamesInserterCommand
@@ -15,7 +14,6 @@ class Command(BaseCommand):
 
     @staticmethod
     def insert():
-        TeamSeasonInserterCommand.insert()
         PlayersInserterCommand.insert()
         GamesInserterCommand.insert()
 
