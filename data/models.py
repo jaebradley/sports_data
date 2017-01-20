@@ -73,41 +73,31 @@ class Season(Model):
         return '{0} - {1} - {2}'.format(self.league, self.start_time, self.end_time)
 
 
-class TeamSeason(Model):
-    team = ForeignKey(Team, on_delete=CASCADE)
-    season = ForeignKey(Season, on_delete=CASCADE)
-
-    class Meta:
-        unique_together = ('team', 'season')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.team, self.season)
-
-
 class Player(Model):
-    team_season = ForeignKey(TeamSeason, on_delete=CASCADE, null=True)
+    team = ForeignKey(Team, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
     identifier = CharField(max_length=50)
     jersey = BigIntegerField(null=True)
 
     class Meta:
-        unique_together = ('team_season', 'identifier')
+        unique_together = ('team', 'identifier')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.team_season, self.name, self.identifier)
+        return '{0} - {1} - {2}'.format(self.team, self.name, self.identifier)
 
 
 class Game(Model):
-    home_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='home_team_season')
-    away_team_season = ForeignKey(TeamSeason, on_delete=CASCADE, related_name='away_team_season')
+    home_team = ForeignKey(Team, on_delete=CASCADE, related_name='home_team')
+    away_team = ForeignKey(Team, on_delete=CASCADE, related_name='away_team')
+    season = ForeignKey(Season, on_delete=CASCADE, related_name='season')
     start_time = DateTimeField()
     identifier = CharField(max_length=50)
 
     class Meta:
-        unique_together = ('home_team_season', 'away_team_season', 'start_time')
+        unique_together = ('home_team', 'away_team', 'season', 'start_time')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.home_team_season, self.away_team_season, self.start_time, self.identifier)
+        return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.season, self.start_time, self.identifier)
 
 
 class PlayerGame(Model):
