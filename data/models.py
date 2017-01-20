@@ -80,10 +80,10 @@ class Player(Model):
     jersey = BigIntegerField(null=True)
 
     class Meta:
-        unique_together = ('team', 'identifier')
+        unique_together = ('team', 'identifier', 'jersey')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.team, self.name, self.identifier)
+        return '{0} - {1} - {2} - {3}'.format(self.team, self.name, self.identifier, self.jersey)
 
 
 class Game(Model):

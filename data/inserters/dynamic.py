@@ -6,6 +6,7 @@ import logging
 import logging.config
 import os
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist
 
 from draft_kings_client import DraftKingsClient, Sport
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
@@ -48,6 +49,7 @@ class NbaPlayersInserter:
             query_season = NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
                                                                       end_year=season.end_time.year)
             for player in NbaClient.get_players(season=query_season):
+                season_players = list()
                 logger.info('Player: %s' % player.__dict__)
                 for player_team_season in player.team_seasons:
                     logger.info('Player Team Season: %s' % player_team_season.__dict__)
@@ -59,10 +61,19 @@ class NbaPlayersInserter:
                         team = TeamModel.objects.get(league=nba, name=player_team_season.team.value)
                         logger.info('Team: %s' % team)
 
-                        player_object, created = PlayerModel.objects.get_or_create(team=team, name=player.name.strip(),
-                                                                                   identifier=player.player_id,
-                                                                                   jersey=player.jersey)
-                        logger.info('Created: %s | Player: %s' % (created, player_object))
+                        # TODO: @jbradley to refactor placeholder logic
+                        # Check if player exists, if so, move on
+                        # Else, add player to list to bulk create
+                        # Collisions could occur if a player is inserted before the bulk create executes
+                        try:
+                            PlayerModel.objects.get(team=team, identifier=player.player_id, jersey=player.jersey)
+                            logger.info('Player: %s exists', player)
+                        except ObjectDoesNotExist:
+                            logger.info('Player: %s does not exist', player)
+                            season_players.append(PlayerModel(team=team, name=player.name.strip(),
+                                                              identifier=player.player_id, jersey=player.jersey))
+
+                PlayerModel.objects.bulk_create(season_players)
 
 
 class GamesInserter:
@@ -322,7 +333,7 @@ class DraftKingsNbaPlayerGameInserter:
         try:
             player = PlayerModel.objects.get(team_season=player_team, jersey=draft_group_player.jersey_number)
         except PlayerModel.MultipleObjectsReturned:
-            logger.info('Cannot identify player by team season: %s and jersey: %s', player_team, draft_group_player.jersey_number)
+            logger.info('Cannot identify player: %s and jersey: %s', player_team, draft_group_player.jersey_number)
 
             player_name_translation = self.player_name_map.get(player_name)
             logger.info('Player Name Translation: %s' % player_name_translation)
