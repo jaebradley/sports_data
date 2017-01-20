@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
-from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, TeamSeason, \
-    Player, Game, PlayerGame, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
+from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, \
+    Player, Game, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
     DailyFantasySportsSitePlayerGame
 
 
@@ -56,39 +56,22 @@ class SeasonSerializer(ModelSerializer):
         fields = ('league', 'start_time', 'end_time')
 
 
-class TeamSeasonSerializer(ModelSerializer):
-    team = TeamSerializer()
-    season = SeasonSerializer()
-
-    class Meta:
-        model = TeamSeason()
-        fields = ('team', 'season')
-
-
 class PlayerSerializer(ModelSerializer):
-    team_season = TeamSeasonSerializer()
+    team = TeamSerializer()
 
     class Meta:
         model = Player()
-        fields = ('name', 'team_season')
+        fields = ('name', 'team')
 
 
 class GameSerializer(ModelSerializer):
-    home_team_season = TeamSeasonSerializer()
-    away_team_season = TeamSeasonSerializer()
+    home_team = TeamSerializer()
+    away_team = TeamSerializer()
+    season = SeasonSerializer()
 
     class Meta:
         model = Game()
-        fields = ('home_team_season', 'away_team_season', 'start_time')
-
-
-class PlayerGameSerializer(ModelSerializer):
-    player = PlayerSerializer()
-    game = GameSerializer()
-
-    class Meta:
-        model = PlayerGame()
-        fields = ('player', 'game')
+        fields = ('home_team', 'away_team', 'season', 'start_time')
 
 
 class DailyFantasySportsSiteLeaguePositionSerializer(ModelSerializer):
