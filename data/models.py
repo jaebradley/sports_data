@@ -113,7 +113,7 @@ class DailyFantasySportsSiteLeaguePosition(Model):
 
 class DailyFantasySportsSiteLeaguePositionGroup(Model):
     daily_fantasy_sports_site_league_position = ForeignKey(DailyFantasySportsSiteLeaguePosition, on_delete=CASCADE)
-    identifier = IntegerField()
+    identifier = IntegerField(null=True)
 
     class Meta:
         unique_together = ('daily_fantasy_sports_site_league_position', 'identifier')
