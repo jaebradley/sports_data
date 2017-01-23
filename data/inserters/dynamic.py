@@ -9,7 +9,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 from draft_kings_client import DraftKingsClient, Sport
-from fan_duel_client import FanDuelClient, Position as FanDuelPosition, Team as FanDuelTeam
+from fan_duel_client import FanDuelClient, Position as FanDuelPosition, Team as FanDuelTeam, Sport as FanDuelSport
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
 
@@ -181,9 +181,9 @@ class FanDuelNbaPlayerGameInserter:
 
     def insert(self):
         nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
-        fan_duel = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.fan_duel)
+        fan_duel = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.fan_duel.value)
 
-        fixture_lists = self.client.get_fixture_lists()
+        fixture_lists = [fixture_list for fixture_list in self.client.get_fixture_lists() if fixture_list.sport is FanDuelSport.nba]
         for fixture_list in fixture_lists:
             logger.info('Fixture List: %s', fixture_list.__dict__)
 
@@ -197,11 +197,11 @@ class FanDuelNbaPlayerGameInserter:
                 league_position = LeaguePositionModel.objects.get(league=nba, position__name=position.value)
                 logger.info('League Position: %s', league_position)
 
-                fan_duel_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects\
+                fan_duel_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects \
                     .get_or_create(daily_fantasy_sports_site=fan_duel, league_position=league_position)
                 logger.info('Created: %s | FanDuel League Position: %s', created, fan_duel_league_position)
 
-                fan_duel_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects\
+                fan_duel_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
                     .get_or_create(daily_fantasy_sports_site_league_position=fan_duel_league_position, identifier=None)
                 logger.info('Created: %s | FanDuel League Position Group: %s', created, fan_duel_league_position_group)
 
@@ -222,23 +222,30 @@ class FanDuelNbaPlayerGameInserter:
                 logger.info('Season: %s', season)
 
                 game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season,
-                                             start_time=fixture_player.fixture.start_time,
-                                             identifier=fixture_player.fixture.fixture_id)
+                                             start_time=fixture_player.fixture.start_time)
                 logger.info('Game: %s', game)
 
-                player = PlayerModel.objects.get(team=player_team, jersey=fixture_player.jersey_number)
-                logger.info('Player: %s', player)
+                player_name = fixture_player.first_name + ' ' + fixture_player.last_name
+                try:
+                    player = PlayerModel.objects.get(team=player_team, jersey=fixture_player.jersey_number)
+                    logger.info('Player: %s', player)
+                except PlayerModel.MultipleObjectsReturned:
+                    logger.info('Cannot identify player: %s and jersey: %s', player_name, fixture_player.jersey_number)
+                    player = PlayerModel.objects.get(team=player_team, name=player_name, jersey=fixture_player.jersey_number)
+                except PlayerModel.DoesNotExist:
+                    # Sometime NBA.com API does not have players that FanDuel has
+                    logger.info('Cannot identify player: %s and jersey: %s', player_name, fixture_player.jersey_number)
+                    break
 
-                fan_duel_player_game, created = DailyFantasySportsSitePlayerGameModel.objects\
+                fan_duel_player_game, created = DailyFantasySportsSitePlayerGameModel.objects \
                     .get_or_create(daily_fantasy_sports_site=fan_duel, player=player, game=game,
-                                   salary=fixture_player.salary, site_name=fixture_player.first_name + ' ' + fixture_player.last_name)
+                                   salary=fixture_player.salary, site_name=player_name)
                 logger.info('Created: %s | FanDuel Player Game: %s', created, fan_duel_player_game)
 
-                fan_duel_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects\
+                fan_duel_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects \
                     .get_or_create(daily_fantasy_sports_site_player_game=fan_duel_player_game,
                                    daily_fantasy_sports_site_league_position_group=fan_duel_league_position_group)
                 logger.info('Created: %s | FanDuel Player Game Position: %s', created, fan_duel_player_game_position)
-
 
 
 class DraftKingsPlayerGameInserter:
