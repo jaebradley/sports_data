@@ -9,8 +9,9 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 from draft_kings_client import DraftKingsClient, Sport
-from fan_duel_client import FanDuelClient
+from fan_duel_client import FanDuelClient,
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
+from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
     Player as PlayerModel, Game as GameModel, DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
@@ -131,8 +132,28 @@ class DailyFantasySportsSitePlayerGameInserter:
 
 
 class FanDuelNbaPlayerGameInserter:
+    position_map = {
+
+    }
+
     def __init__(self):
-        pass
+        self.client = FanDuelClient(basic_authorization_header_value=BASIC_AUTHORIZATION_HEADER_VALUE,
+                                    x_auth_token_header_value=X_AUTH_TOKEN_HEADER_VALUE)
+
+    def insert(self):
+        nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
+        fan_duel = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.fan_duel)
+
+        fixture_lists = self.client.get_fixture_lists()
+        for fixture_list in fixture_lists:
+            logger.info('Fixture List: %s', fixture_list)
+
+            fixture_players = self.client.get_fixture_players(fixture_list_id=fixture_list.fixture_list_id)
+            for fixture_player in fixture_players:
+                logger.info('Fixture Player: %s', fixture_player)
+
+
+
 
 
 class DraftKingsPlayerGameInserter:
