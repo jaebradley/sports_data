@@ -9,6 +9,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 from draft_kings_client import DraftKingsClient, Sport
+from fan_duel_client import FanDuelClient
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
@@ -127,6 +128,11 @@ class DailyFantasySportsSitePlayerGameInserter:
 
     def insert(self):
         self.draft_kings_player_game_inserter.insert()
+
+
+class FanDuelNbaPlayerGameInserter:
+    def __init__(self):
+        pass
 
 
 class DraftKingsPlayerGameInserter:

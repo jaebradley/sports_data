@@ -17,4 +17,6 @@ six==1.10.0
 static3==0.7.0
 whitenoise==2.0.6
 nba_data==1.1
-fan_duel==0.1
+fan-duel-client==0.1
+python-dotenv==0.6.2
+
