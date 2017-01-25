@@ -204,3 +204,14 @@ class Team(Enum):
         'name': 'Washington Wizards',
         'league': League.nba
     }
+
+    @staticmethod
+    def value_of(name, league):
+        assert isinstance(name, basestring)
+        assert isinstance(league, League)
+
+        for team in Team:
+            if team.value['name'] == name.upper() and team.value['league'] == league:
+                return team
+
+        raise ValueError('Unable to identify team with name: %s and league: %s', name, league)
