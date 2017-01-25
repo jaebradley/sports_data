@@ -20,6 +20,14 @@ logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging
 logger = logging.getLogger('fan_duel_inserter')
 
 
+class PlayerGameInserter:
+    def __init__(self, nba_inserter):
+        self.nba_inserter = FanDuelNbaPlayerGameInserter()
+
+    def insert(self):
+        self.nba_inserter.insert()
+
+
 class FanDuelNbaPlayerGameInserter:
     position_map = {
         FanDuelPosition.point_guard: PositionObject.point_guard,
@@ -85,11 +93,11 @@ class FanDuelNbaPlayerGameInserter:
                 logger.info('League Position: %s', league_position)
 
                 fan_duel_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects \
-                    .get_player(daily_fantasy_sports_site=fan_duel, league_position=league_position)
+                    .get_or_create(daily_fantasy_sports_site=fan_duel, league_position=league_position)
                 logger.info('Created: %s | FanDuel League Position: %s', created, fan_duel_league_position)
 
                 fan_duel_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
-                    .get_player(daily_fantasy_sports_site_league_position=fan_duel_league_position, identifier=None)
+                    .get_or_create(daily_fantasy_sports_site_league_position=fan_duel_league_position, identifier=None)
                 logger.info('Created: %s | FanDuel League Position Group: %s', created, fan_duel_league_position_group)
 
                 player_team_object = FanDuelNbaPlayerGameInserter.team_abbreviation_map.get(fixture_player.team)
@@ -125,11 +133,11 @@ class FanDuelNbaPlayerGameInserter:
                     break
 
                 fan_duel_player_game, created = DailyFantasySportsSitePlayerGameModel.objects \
-                    .get_player(daily_fantasy_sports_site=fan_duel, player=player, game=game,
-                                salary=fixture_player.salary, site_name=player_name)
+                    .get_or_create(daily_fantasy_sports_site=fan_duel, player=player, game=game,
+                                   salary=fixture_player.salary, site_name=player_name)
                 logger.info('Created: %s | FanDuel Player Game: %s', created, fan_duel_player_game)
 
                 fan_duel_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects \
-                    .get_player(daily_fantasy_sports_site_player_game=fan_duel_player_game,
-                                daily_fantasy_sports_site_league_position_group=fan_duel_league_position_group)
+                    .get_or_create(daily_fantasy_sports_site_player_game=fan_duel_player_game,
+                                   daily_fantasy_sports_site_league_position_group=fan_duel_league_position_group)
                 logger.info('Created: %s | FanDuel Player Game Position: %s', created, fan_duel_player_game_position)
