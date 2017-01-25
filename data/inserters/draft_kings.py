@@ -18,20 +18,23 @@ from data.objects import League as LeagueObject, Sport as SportObject, DfsSite a
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('draft_kings_inserter')
 
-draft_kings = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
-nba = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
 
-
-class DraftKingsPlayerGameInserter:
+class PlayerGameInserter:
+    daily_fantasy_sports_site = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
 
     def __init__(self):
-        self.draft_kings_nba_player_game_inserter = DraftKingsNbaPlayerGameInserter()
+        pass
 
-    def insert(self):
-        self.draft_kings_nba_player_game_inserter.insert()
+    @staticmethod
+    def insert():
+        NbaPlayerGameInserter.insert()
 
 
-class DraftKingsNbaPlayerGameInserter:
+class NbaPlayerGameInserter:
+    league = LeagueModel.objects.get(sport__name=SportObject.basketball.value, name=LeagueObject.nba.value['name'])
+
+    def __init__(self):
+        pass
 
     team_map = {
         DraftKingsTeam.atlanta_hawks: TeamObject.atlanta_hawks,
@@ -66,9 +69,6 @@ class DraftKingsNbaPlayerGameInserter:
         DraftKingsTeam.washington_wizards: TeamObject.washington_wizards
     }
 
-    def __init__(self):
-        pass
-
     @staticmethod
     def insert():
         for contest_draft_group in DraftKingsClient.get_contests(sport=DraftKingsSport.nba).draft_groups:
@@ -77,10 +77,10 @@ class DraftKingsNbaPlayerGameInserter:
                 logger.info('Draft Group Player: %s' % draft_group_player.__dict__)
 
                 draft_kings_league_position_groups = PositionGroupInserter.insert_position_groups(
-                        league=nba, position_group=draft_group_player.position_group)
+                        league=NbaPlayerGameInserter.league, position_group=draft_group_player.position_group)
                 logger.info('DraftKings League Position Groups: %s' % draft_kings_league_position_groups)
 
-                draft_kings_player_game = DraftKingsNbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
+                draft_kings_player_game = NbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
                 logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
                 for draft_kings_league_position_group in draft_kings_league_position_groups:
                     logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
@@ -99,19 +99,20 @@ class DraftKingsNbaPlayerGameInserter:
         draft_group_away_team = draft_group_player.match_up.away_team
         logger.info('Draft Group Away Team: %s' % draft_group_away_team.__dict__)
 
-        home_team_object = DraftKingsNbaPlayerGameInserter.team_map.get(draft_group_home_team)
+        home_team_object = NbaPlayerGameInserter.team_map.get(draft_group_home_team)
         assert home_team_object is not None
 
-        home_team = TeamModel.objects.get(league=nba, name=home_team_object.value['name'])
+        home_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league, name=home_team_object.value['name'])
         logger.info('Home Team: %s' % home_team)
 
-        away_team_object = DraftKingsNbaPlayerGameInserter.team_map.get(draft_group_away_team)
+        away_team_object = NbaPlayerGameInserter.team_map.get(draft_group_away_team)
         assert away_team_object is not None
 
-        away_team = TeamModel.objects.get(league=nba, name=away_team_object.value['name'])
+        away_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league, name=away_team_object.value['name'])
         logger.info('Away Team: %s' % home_team)
 
-        season = SeasonModel.objects.get(league=nba, start_time__lte=draft_group_player.draft_group_start_time,
+        season = SeasonModel.objects.get(league=NbaPlayerGameInserter.league,
+                                         start_time__lte=draft_group_player.draft_group_start_time,
                                          end_time__gte=draft_group_player.draft_group_start_time)
         logger.info('Season: %s' % season)
 
@@ -128,14 +129,15 @@ class DraftKingsNbaPlayerGameInserter:
         logger.info('Player: %s' % player)
 
         dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(
-                daily_fantasy_sports_site=draft_kings, player=player, game=game, salary=draft_group_player.salary,
-                site_name=player_name)
+                daily_fantasy_sports_site=PlayerGameInserter.daily_fantasy_sports_site, player=player, game=game,
+                salary=draft_group_player.salary, site_name=player_name)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
 
         return dfs_player_game
 
 
 class PositionGroupInserter:
+    daily_fantasy_sports_site = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
     position_map = {
         DraftKingsPosition.point_guard: PositionObject.point_guard,
         DraftKingsPosition.shooting_guard: PositionObject.shooting_guard,
@@ -161,7 +163,8 @@ class PositionGroupInserter:
             logger.info('League position: %s' % league_position)
 
             dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_or_create(
-                    daily_fantasy_sports_site=draft_kings, league_position=league_position)
+                    daily_fantasy_sports_site=PositionGroupInserter.daily_fantasy_sports_site,
+                    league_position=league_position)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
 
             dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_or_create(
