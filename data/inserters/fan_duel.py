@@ -77,6 +77,29 @@ class NbaPlayerGameInserter:
         self.client = FanDuelClient(basic_authorization_header_value=BASIC_AUTHORIZATION_HEADER_VALUE,
                                     x_auth_token_header_value=X_AUTH_TOKEN_HEADER_VALUE)
 
+    @staticmethod
+    def get_game(fixture):
+        home_team_object = NbaPlayerGameInserter.team_map.get(fixture.home_team)
+        home_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league,
+                                          name=home_team_object.value['name'])
+        logger.info('Home Team: %s', home_team)
+
+        away_team_object = NbaPlayerGameInserter.team_map.get(fixture.away_team)
+        away_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league,
+                                          name=away_team_object.value['name'])
+        logger.info('Away Team: %s', away_team)
+
+        season = SeasonModel.objects.get(league=NbaPlayerGameInserter.league,
+                                         start_time__lte=fixture.start_time,
+                                         end_time__gte=fixture.start_time)
+        logger.info('Season: %s', season)
+
+        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season,
+                                     start_time=fixture.start_time)
+        logger.info('Game: %s', game)
+
+        return game
+
     def insert(self):
         fixture_lists = [fixture_list for fixture_list in self.client.get_fixture_lists() if fixture_list.sport is FanDuelSport.nba]
         for fixture_list in fixture_lists:
@@ -107,23 +130,7 @@ class NbaPlayerGameInserter:
                                                     name=player_team_object.value['name'])
                 logger.info('Player Team: %s', player_team)
 
-                home_team_object = NbaPlayerGameInserter.team_map.get(fixture_player.fixture.home_team)
-                home_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league,
-                                                  name=home_team_object.value['name'])
-                logger.info('Home Team: %s', home_team)
-
-                away_team_object = NbaPlayerGameInserter.team_map.get(fixture_player.fixture.away_team)
-                away_team = TeamModel.objects.get(league=NbaPlayerGameInserter.league,
-                                                  name=away_team_object.value['name'])
-                logger.info('Away Team: %s', away_team)
-
-                season = SeasonModel.objects.get(league=NbaPlayerGameInserter.league,
-                                                 start_time__lte=fixture_player.fixture.start_time,
-                                                 end_time__gte=fixture_player.fixture.start_time)
-                logger.info('Season: %s', season)
-
-                game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season,
-                                             start_time=fixture_player.fixture.start_time)
+                game = NbaPlayerGameInserter.get_game(fixture=fixture_player.fixture)
                 logger.info('Game: %s', game)
 
                 player_name = fixture_player.first_name + ' ' + fixture_player.last_name
