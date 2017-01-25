@@ -1,28 +1,19 @@
  -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+ from __future__ import unicode_literals
 
-import logging
-import logging.config
-import os
+ import logging.config
+ import os
 
-from django.core.exceptions import ObjectDoesNotExist
+ from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
+ from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
-from draft_kings_client import DraftKingsClient, Position as DraftKingsPosition, Team as DraftKingsTeam, Sport as DraftKingsSport
+ from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
+     LeaguePosition as LeaguePositionModel, DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
+ from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, \
+     Position as PositionObject, Team as TeamObject
 
-from fan_duel_client import FanDuelClient, Position as FanDuelPosition, Team as FanDuelTeam, Sport as FanDuelSport
-from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
-
-from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
-    Player as PlayerModel, Game as GameModel, DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
-    DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    LeaguePosition as LeaguePositionModel, DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, \
-    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
-from data.objects import League as LeagueObject, Sport as SportObject, DfsSite as DfsSiteObject, \
-    Position as PositionObject, Team as TeamObject
-from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
-
-logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
+ logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
 
 # TODO: @jbradley refactor all of this ASAP
@@ -85,17 +76,13 @@ class PositionFetcher:
             league_object=league_object,
             position_object=position_object)
 
-        league = LeagueModel.objects.get_or_create(sport__name=league_object.value['sport'].value,
-                                                   league__name=league_object.value['name'])
-        return LeaguePositionModel.objects.get_or_create(league=league, position=position_object.value)
+        league = LeagueModel.objects.get(sport__name=league_object.value['sport'].value,
+                                         league__name=league_object.value['name'])
+        return LeaguePositionModel.objects.get(league=league, position=position_object.value)
 
     @staticmethod
     def get_or_create_league_position_group(daily_fantasy_sports_site_object, league_object, position_object,
                                             identifier):
-        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
-        assert isinstance(league_object, LeagueObject)
-        assert isinstance(position_object, (FanDuelPosition, DraftKingsPosition))
-
         daily_fantasy_sports_site_model_object = DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)
 
         league_position_model_object = PositionFetcher.get_league_position(
@@ -213,14 +200,37 @@ class TeamFetcher:
 
     @staticmethod
     def get_team_model_object(daily_fantasy_sports_site_object, league_object, team_object):
-        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
-        assert isinstance(league_object, LeagueObject)
-        assert isinstance(team_object, (FanDuelTeam, DraftKingsTeam))
-
         league_team = TeamFetcher.get_team(daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
                                            league_object=league_object, team_object=team_object)
 
+        league = LeagueModel.objects.get(sport__name=league_object.value['sport'].value,
+                                         league__name=league_object.value['name'])
+
+        return TeamModel.objects.get(league=league, name=league_team.value['name'])
+
+
+class GameFetcher:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_game(daily_fantasy_sports_site_object, league_object, away_team_object, home_team_object, start_time):
+        away_team = TeamFetcher.get_team_model_object(daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
+                                                      league_object=league_object, team_object=away_team_object)
+        logger.info('Away Team: %s', away_team)
+
+        home_team = TeamFetcher.get_team_model_object(daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
+                                                      league_object=league_object, team_object=home_team_object)
+        logger.info('Home Team: %s', home_team)
+
         league = LeagueModel.objects.get_or_create(sport__name=league_object.value['sport'].value,
                                                    league__name=league_object.value['name'])
+        logger.info('League: %s', league)
 
-        return TeamModel.objects.get_or_create(league=league, name=league_team.value['name'])
+        season = SeasonModel.objects.get(league=league, start_time__lte=start_time, end_time__gte=start_time)
+        logger.info('Season: %s', season)
+
+        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time=start_time)
+        logger.info('Game: %s', game)
+
+        return game
