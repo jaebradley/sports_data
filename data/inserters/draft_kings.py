@@ -85,7 +85,7 @@ class NbaPlayerGameInserter:
                 for draft_kings_league_position_group in draft_kings_league_position_groups:
                     logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
 
-                    dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_or_create(
+                    dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_player(
                             daily_fantasy_sports_site_player_game=draft_kings_player_game,
                             daily_fantasy_sports_site_league_position_group=draft_kings_league_position_group)
                     logger.info('Created: %s | Daily Fantasy Sports Site Player Game Position: %s',
@@ -125,10 +125,10 @@ class NbaPlayerGameInserter:
         player_name = draft_group_player.first_name + " " + draft_group_player.last_name
         logger.info('Player Name: %s' % player_name)
 
-        player = PlayerInserter.get_or_create(name=player_name, team=player_team, jersey_number=draft_group_player.jersey_number)
+        player = PlayerFetcher.get_player(name=player_name, team=player_team, jersey_number=draft_group_player.jersey_number)
         logger.info('Player: %s' % player)
 
-        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(
+        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_player(
                 daily_fantasy_sports_site=PlayerGameInserter.daily_fantasy_sports_site, player=player, game=game,
                 salary=draft_group_player.salary, site_name=player_name)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
@@ -155,19 +155,18 @@ class PositionGroupInserter:
         for position in position_group.positions:
             logger.info('Position: %s' % position)
 
-            league_position_object = PositionGroupInserter.position_map.get(position)
-            logger.info('Position object: %s' % league_position_object)
-            assert league_position_object is not None
+            position_object = PositionGroupInserter.position_map.get(position)
+            logger.info('Position object: %s' % position_object)
 
-            league_position = LeaguePositionModel.objects.get(league=league, position__name=league_position_object.value)
+            league_position = LeaguePositionModel.objects.get(league=league, position__name=position_object.value)
             logger.info('League position: %s' % league_position)
 
-            dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_or_create(
+            dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_player(
                     daily_fantasy_sports_site=PositionGroupInserter.daily_fantasy_sports_site,
                     league_position=league_position)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
 
-            dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_or_create(
+            dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_player(
                     daily_fantasy_sports_site_league_position=dfs_league_position,
                     identifier=position_group.position_group_id
             )
@@ -179,7 +178,7 @@ class PositionGroupInserter:
         return draft_kings_league_position_groups
 
 
-class PlayerInserter:
+class PlayerFetcher:
     player_name_translation_map = {
         LeagueObject.nba: {
             'T.J. McConnell': 'TJ McConnell',
@@ -194,7 +193,7 @@ class PlayerInserter:
         pass
 
     @staticmethod
-    def get_or_create(name, team, jersey_number):
+    def get_player(name, team, jersey_number):
         logger.info('Attempting identification of player with name: %s, jersey: %s, team: %s', name, jersey_number, team)
         league_object = LeagueObject.value_of(name=team.league.name)
 
@@ -206,7 +205,7 @@ class PlayerInserter:
         except PlayerModel.MultipleObjectsReturned:
             logger.info('Cannot identify player using only name: %s and jersey: %s', team, jersey_number)
 
-            league_player_name_translations = PlayerInserter.player_name_translation_map.get(league_object)
+            league_player_name_translations = PlayerFetcher.player_name_translation_map.get(league_object)
             if league_player_name_translations is None:
                 try:
                     return PlayerModel.objects.get(team=team, name=name, jersey=jersey_number)

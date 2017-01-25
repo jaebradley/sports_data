@@ -116,11 +116,11 @@ class NbaGamesInserter:
                                     game.matchup.home_team, game.matchup.away_team, game.start_time)
                         home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
                         away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
-                        game, created = GameModel.objects.get_or_create(home_team=home_team,
-                                                                        away_team=away_team,
-                                                                        season=season,
-                                                                        start_time=game.start_time,
-                                                                        identifier=game.game_id)
+                        game, created = GameModel.objects.get_player(home_team=home_team,
+                                                                     away_team=away_team,
+                                                                     season=season,
+                                                                     start_time=game.start_time,
+                                                                     identifier=game.game_id)
                         logger.info('Created: %s | Game: %s', created, game)
 
 
@@ -198,11 +198,11 @@ class FanDuelNbaPlayerGameInserter:
                 logger.info('League Position: %s', league_position)
 
                 fan_duel_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects \
-                    .get_or_create(daily_fantasy_sports_site=fan_duel, league_position=league_position)
+                    .get_player(daily_fantasy_sports_site=fan_duel, league_position=league_position)
                 logger.info('Created: %s | FanDuel League Position: %s', created, fan_duel_league_position)
 
                 fan_duel_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
-                    .get_or_create(daily_fantasy_sports_site_league_position=fan_duel_league_position, identifier=None)
+                    .get_player(daily_fantasy_sports_site_league_position=fan_duel_league_position, identifier=None)
                 logger.info('Created: %s | FanDuel League Position Group: %s', created, fan_duel_league_position_group)
 
                 player_team_object = FanDuelNbaPlayerGameInserter.team_abbreviation_map.get(fixture_player.team)
@@ -238,13 +238,13 @@ class FanDuelNbaPlayerGameInserter:
                     break
 
                 fan_duel_player_game, created = DailyFantasySportsSitePlayerGameModel.objects \
-                    .get_or_create(daily_fantasy_sports_site=fan_duel, player=player, game=game,
-                                   salary=fixture_player.salary, site_name=player_name)
+                    .get_player(daily_fantasy_sports_site=fan_duel, player=player, game=game,
+                                salary=fixture_player.salary, site_name=player_name)
                 logger.info('Created: %s | FanDuel Player Game: %s', created, fan_duel_player_game)
 
                 fan_duel_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects \
-                    .get_or_create(daily_fantasy_sports_site_player_game=fan_duel_player_game,
-                                   daily_fantasy_sports_site_league_position_group=fan_duel_league_position_group)
+                    .get_player(daily_fantasy_sports_site_player_game=fan_duel_player_game,
+                                daily_fantasy_sports_site_league_position_group=fan_duel_league_position_group)
                 logger.info('Created: %s | FanDuel Player Game Position: %s', created, fan_duel_player_game_position)
 
 
@@ -368,7 +368,7 @@ class DraftKingsNbaPlayerGameInserter:
                 for draft_kings_league_position_group in draft_kings_league_position_groups:
                     logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
 
-                    dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_or_create(
+                    dfs_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects.get_player(
                             daily_fantasy_sports_site_player_game=draft_kings_player_game,
                             daily_fantasy_sports_site_league_position_group=draft_kings_league_position_group)
                     logger.info('Created: %s | Daily Fantasy Sports Site Player Game Position: %s',
@@ -388,11 +388,11 @@ class DraftKingsNbaPlayerGameInserter:
             league_position = LeaguePositionModel.objects.get(league=nba, position__name=position_object.value)
             logger.info('League position: %s' % league_position)
 
-            dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_or_create(
+            dfs_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects.get_player(
                     daily_fantasy_sports_site=draft_kings, league_position=league_position)
             logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, dfs_league_position)
 
-            dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_or_create(
+            dfs_league_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects.get_player(
                 daily_fantasy_sports_site_league_position=dfs_league_position,
                 identifier=draft_group_player.position.position_id
             )
@@ -461,7 +461,7 @@ class DraftKingsNbaPlayerGameInserter:
 
         logger.info('Player: %s' % player)
 
-        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(
+        dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_player(
                 daily_fantasy_sports_site=draft_kings, player=player, game=game, salary=draft_group_player.salary,
                 site_name=player_name)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
