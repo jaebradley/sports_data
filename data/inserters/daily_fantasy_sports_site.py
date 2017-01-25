@@ -9,11 +9,12 @@
  from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
  from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
-     LeaguePosition as LeaguePositionModel, DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
+     LeaguePosition as LeaguePositionModel, DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel, \
+     Player as PlayerModel
  from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, \
      Position as PositionObject, Team as TeamObject
 
- logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
 
 # TODO: @jbradley refactor all of this ASAP
@@ -67,10 +68,6 @@ class PositionFetcher:
 
     @staticmethod
     def get_league_position(daily_fantasy_sports_site_object, league_object, position_object):
-        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
-        assert isinstance(league_object, LeagueObject)
-        assert isinstance(position_object, (FanDuelPosition, DraftKingsPosition))
-
         position_object = PositionFetcher.get_position_object(
             daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
             league_object=league_object,
@@ -214,7 +211,7 @@ class GameFetcher:
         pass
 
     @staticmethod
-    def get_game(daily_fantasy_sports_site_object, league_object, away_team_object, home_team_object, start_time):
+    def get_game_model_object(daily_fantasy_sports_site_object, league_object, away_team_object, home_team_object, start_time):
         away_team = TeamFetcher.get_team_model_object(daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
                                                       league_object=league_object, team_object=away_team_object)
         logger.info('Away Team: %s', away_team)
@@ -234,3 +231,49 @@ class GameFetcher:
         logger.info('Game: %s', game)
 
         return game
+
+class PlayerFetcher:
+    def __init__(self):
+        pass
+
+    league_player_name_translation_map = {
+        DfsSiteObject.draft_kings: {
+            LeagueObject.nba: {
+                'T.J. McConnell': 'TJ McConnell',
+                'Sergio Rodríguez': 'Sergio Rodriguez',
+                'Glenn Robinson III': 'Glenn Robinson',
+                'Nene Hilario': 'Nene',
+                'Guillermo Hernangómez': 'Willy Hernangomez',
+            }
+        }
+    }
+
+    @staticmethod
+    def get_player(name, jersey_number, team_model_object):
+        logger.info('Attempting identification of player with name: %s, jersey: %s, team: %s',
+                    name, jersey_number, team_model_object)
+
+        # TODO: @jbradley make this lookup more robust for edge-case where multiple players with same name play
+        # for same team
+
+        try:
+            return PlayerModel.objects.get(team=team_model_object, jersey=jersey_number)
+        except PlayerModel.MultipleObjectsReturned:
+            logger.info('Cannot identify player using only name: %s and jersey: %s', name, jersey_number)
+
+            league_player_name_translations = PlayerFetcher.league_player_name_translation_map.get(league_object)
+            if league_player_name_translations is None:
+                try:
+                    return PlayerModel.objects.get(team=team, name=name, jersey=jersey_number)
+                except Exception:
+                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s', name, team,
+                                     jersey_number)
+
+            player_name_translation = league_player_name_translations.get(name)
+            logger.info('Player Name Translation: %s' % player_name_translation)
+
+            if player_name_translation is None:
+                return PlayerModel.objects.get(team=team, name=name, jersey=jersey_number)
+            else:
+                logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
+                return PlayerModel.objects.get(team=team, name=player_name_translation, jersey=jersey_number)
