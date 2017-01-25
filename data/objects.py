@@ -36,6 +36,16 @@ class League(Enum):
         'sport': Sport.hockey
     }
 
+    @staticmethod
+    def value_of(name):
+        assert isinstance(name, basestring)
+
+        for league in League:
+            if league.value['name'] == name.upper():
+                return league
+
+        raise ValueError('Unable to identify league with name: %s', name)
+
 
 class Season(Enum):
     nba_2017 = {
