@@ -41,7 +41,7 @@ class League(Enum):
         assert isinstance(name, basestring)
 
         for league in League:
-            if league.value['name'] is name.upper():
+            if league.value['name'] == name.upper():
                 return league
 
         raise ValueError('Unable to identify league with name: %s', name)
