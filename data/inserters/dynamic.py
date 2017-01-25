@@ -7,6 +7,9 @@ import logging.config
 import os
 
 from django.core.exceptions import ObjectDoesNotExist
+
+from draft_kings_client import DraftKingsClient, Position as DraftKingsPosition, Team as DraftKingsTeam, Sport as DraftKingsSport
+
 from fan_duel_client import FanDuelClient, Position as FanDuelPosition, Team as FanDuelTeam, Sport as FanDuelSport
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 
@@ -23,6 +26,94 @@ logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging
 logger = logging.getLogger('inserter')
 
 # TODO: @jbradley refactor all of this ASAP
+
+
+class DailyFantasySportsSitePositionFetcher:
+    
+    def __init__(self):
+        pass
+
+    league_positions_map = {
+        DfsSiteObject.fan_duel: {
+            LeagueObject.nba: {
+                FanDuelPosition.point_guard: PositionObject.point_guard,
+                FanDuelPosition.shooting_guard: PositionObject.shooting_guard,
+                FanDuelPosition.small_forward: PositionObject.small_forward,
+                FanDuelPosition.power_forward: PositionObject.power_forward,
+                FanDuelPosition.center: PositionObject.center
+            }
+        },
+        DfsSiteObject.draft_kings: {
+            LeagueObject.nba: {
+                DraftKingsPosition.point_guard: PositionObject.point_guard,
+                DraftKingsPosition.shooting_guard: PositionObject.shooting_guard,
+                DraftKingsPosition.small_forward: PositionObject.small_forward,
+                DraftKingsPosition.power_forward: PositionObject.power_forward,
+                DraftKingsPosition.center: PositionObject.center
+            }
+        }
+    }
+
+    @staticmethod
+    def get_position_object(daily_fantasy_sports_site_object, league_object, daily_fantasy_sport_site_position_object):
+        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
+        assert isinstance(league_object, LeagueObject)
+        assert isinstance(daily_fantasy_sport_site_position_object, (FanDuelPosition, DraftKingsPosition))
+
+        daily_fantasy_sports_site_leagues = DailyFantasySportsSitePositionFetcher.league_positions_map.get(daily_fantasy_sports_site_object)
+        if daily_fantasy_sports_site_leagues is None:
+            raise ValueError('Unknown daily fantasy sports site: %s', daily_fantasy_sports_site_object)
+
+        league_positions = daily_fantasy_sports_site_leagues.get(league_object)
+        if league_positions is None:
+            raise ValueError('Unknown league: %s', league_object)
+
+        league_position = league_positions.get(daily_fantasy_sport_site_position_object)
+        if league_position is None:
+            raise ValueError('Unknown league position: %s', league_position)
+
+        return league_position
+
+    @staticmethod
+    def get_league_position(daily_fantasy_sports_site_object, league_object, daily_fantasy_sport_site_position_object):
+        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
+        assert isinstance(league_object, LeagueObject)
+        assert isinstance(daily_fantasy_sport_site_position_object, (FanDuelPosition, DraftKingsPosition))
+
+        position_object = DailyFantasySportsSitePositionFetcher.get_position_object(
+            daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
+            league_object=league_object,
+            daily_fantasy_sport_site_position_object=daily_fantasy_sport_site_position_object)
+
+        league = LeagueModel.objects.get(sport__name=league_object.value['sport'].value,
+                                         league__name=league_object.value['name'])
+        return LeaguePositionModel.objects.get(league=league, position=position_object.value)
+
+    @staticmethod
+    def get_or_create_league_position_group(daily_fantasy_sports_site_object, league_object,
+                                            daily_fantasy_sport_site_position_object, identifier):
+        assert isinstance(daily_fantasy_sports_site_object, DfsSiteObject)
+        assert isinstance(league_object, LeagueObject)
+        assert isinstance(daily_fantasy_sport_site_position_object, (FanDuelPosition, DraftKingsPosition))
+
+        daily_fantasy_sports_site_model_object = DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)
+
+        league_position_model_object = DailyFantasySportsSitePositionFetcher.get_league_position(
+            daily_fantasy_sports_site_object=daily_fantasy_sports_site_object, league_object=league_object,
+            daily_fantasy_sport_site_position_object=daily_fantasy_sport_site_position_object)
+        logger.info('League Position: %s', league_position_model_object)
+
+        daily_fantasy_sports_site_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects \
+            .get_or_create(daily_fantasy_sports_site=daily_fantasy_sports_site_model_object,
+                           league_position=league_position_model_object)
+        logger.info('Created: %s | Daily Fantasy Sports Site League Position: %s', created, daily_fantasy_sports_site_league_position)
+
+        daily_fantasy_sports_site_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
+            .get_or_create(daily_fantasy_sports_site_league_position=daily_fantasy_sports_site_league_position,
+                           identifier=identifier)
+        logger.info('Created: %s | FanDuel League Position Group: %s', created, daily_fantasy_sports_site_position_group)
+
+        return daily_fantasy_sports_site_position_group
 
 
 class PlayersInserter:
