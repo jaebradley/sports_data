@@ -29,7 +29,7 @@ logger = logging.getLogger('inserter')
 
 
 class DailyFantasySportsSitePositionFetcher:
-    
+
     def __init__(self):
         pass
 
@@ -114,6 +114,7 @@ class DailyFantasySportsSitePositionFetcher:
         logger.info('Created: %s | FanDuel League Position Group: %s', created, daily_fantasy_sports_site_position_group)
 
         return daily_fantasy_sports_site_position_group
+
 
 
 class PlayersInserter:
