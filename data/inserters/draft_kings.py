@@ -90,7 +90,8 @@ class NbaPlayerGameInserter:
 
         player = PlayerFetcher.get_player(name=player_name, team_model_object=player_team,
                                           jersey_number=draft_group_player.jersey_number,
-                                          league_object=NbaPlayerGameInserter.league)
+                                          league_object=NbaPlayerGameInserter.league,
+                                          daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site)
         logger.info('Player: %s' % player)
 
         daily_fantasy_sports_site_model_object = ObjectMapper.to_daily_fantasy_sports_site_model_object(

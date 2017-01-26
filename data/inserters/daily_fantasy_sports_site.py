@@ -218,7 +218,7 @@ class GameFetcher:
         season = SeasonModel.objects.get(league=league, start_time__lte=start_time, end_time__gte=start_time)
         logger.info('Season: %s', season)
 
-        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time=start_time)
+        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time__contains=start_time.date())
         logger.info('Game: %s', game)
 
         return game
@@ -236,12 +236,15 @@ class PlayerFetcher:
                 'Glenn Robinson III': 'Glenn Robinson',
                 'Nene Hilario': 'Nene',
                 'Guillermo Hernangómez': 'Willy Hernangomez',
+                'P.J. Tucker': 'P.J Tucker',
+                'T.J. Warren': 'TJ Warren',
+                'Derrick Jones Jr.': 'Jr., Derrick Jones'
             }
         }
     }
 
     @staticmethod
-    def get_player(name, jersey_number, team_model_object, league_object):
+    def get_player(name, jersey_number, team_model_object, league_object, daily_fantasy_sports_site_object):
         assert isinstance(team_model_object, TeamModel)
         assert isinstance(league_object, LeagueObject)
 
@@ -256,19 +259,27 @@ class PlayerFetcher:
         except PlayerModel.MultipleObjectsReturned:
             logger.info('Cannot identify player using only name: %s and jersey: %s', name, jersey_number)
 
-            league_player_name_translations = PlayerFetcher.league_player_name_translation_map.get(league_object)
-            if league_player_name_translations is None:
+            daily_fantasy_sports_site_translations = PlayerFetcher.league_player_name_translation_map.get(daily_fantasy_sports_site_object)
+            if daily_fantasy_sports_site_translations is None:
                 try:
                     return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
                 except Exception:
                     raise ValueError('Could not identify player: %s on team: %s with jersey: %s',
                                      name, team_model_object, jersey_number)
 
-            player_name_translation = league_player_name_translations.get(name)
+            league_translations = daily_fantasy_sports_site_translations.get(league_object)
+            if league_translations is None:
+                try:
+                    return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
+                except Exception:
+                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s',
+                                     name, team_model_object, jersey_number)
+
+            player_name_translation = league_translations.get(name)
             logger.info('Player Name Translation: %s' % player_name_translation)
 
             if player_name_translation is None:
                 return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
-            else:
-                logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
-                return PlayerModel.objects.get(team=team_model_object, name=player_name_translation, jersey=jersey_number)
+
+            logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
+            return PlayerModel.objects.get(team=team_model_object, name=player_name_translation, jersey=jersey_number)
