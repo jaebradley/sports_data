@@ -1,18 +1,22 @@
- -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
- from __future__ import unicode_literals
+from __future__ import unicode_literals
 
- import logging.config
- import os
+import logging
+import logging.config
+import os
 
- from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
- from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
+from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
+from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
- from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
-     LeaguePosition as LeaguePositionModel, DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel, \
-     Player as PlayerModel
- from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, \
-     Position as PositionObject, Team as TeamObject
+from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, \
+    DailyFantasySportsSite as DailyFantasySportsSiteModel, \
+    DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
+    LeaguePosition as LeaguePositionModel, \
+    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel, \
+    Player as PlayerModel
+from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, Position as PositionObject, \
+    Team as TeamObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
@@ -232,6 +236,7 @@ class GameFetcher:
 
         return game
 
+
 class PlayerFetcher:
     def __init__(self):
         pass
@@ -249,7 +254,10 @@ class PlayerFetcher:
     }
 
     @staticmethod
-    def get_player(name, jersey_number, team_model_object):
+    def get_player(name, jersey_number, team_model_object, league_object):
+        assert isinstance(team_model_object, TeamModel)
+        assert isinstance(league_object, LeagueObject)
+
         logger.info('Attempting identification of player with name: %s, jersey: %s, team: %s',
                     name, jersey_number, team_model_object)
 
@@ -264,16 +272,16 @@ class PlayerFetcher:
             league_player_name_translations = PlayerFetcher.league_player_name_translation_map.get(league_object)
             if league_player_name_translations is None:
                 try:
-                    return PlayerModel.objects.get(team=team, name=name, jersey=jersey_number)
+                    return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
                 except Exception:
-                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s', name, team,
-                                     jersey_number)
+                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s',
+                                     name, team_model_object, jersey_number)
 
             player_name_translation = league_player_name_translations.get(name)
             logger.info('Player Name Translation: %s' % player_name_translation)
 
             if player_name_translation is None:
-                return PlayerModel.objects.get(team=team, name=name, jersey=jersey_number)
+                return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
             else:
                 logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
-                return PlayerModel.objects.get(team=team, name=player_name_translation, jersey=jersey_number)
+                return PlayerModel.objects.get(team=team_model_object, name=player_name_translation, jersey=jersey_number)
