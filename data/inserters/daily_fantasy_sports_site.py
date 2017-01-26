@@ -21,8 +21,6 @@ from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, Posit
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
 
-# TODO: @jbradley refactor all of this ASAP
-
 
 class PositionFetcher:
 
