@@ -6,6 +6,8 @@ import logging
 import logging.config
 import os
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
 from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
@@ -240,6 +242,13 @@ class PlayerFetcher:
                 'T.J. Warren': 'TJ Warren',
                 'Derrick Jones Jr.': 'Jr., Derrick Jones'
             }
+        },
+        DfsSiteObject.fan_duel: {
+            LeagueObject.nba: {
+                'P.J. Tucker': 'P.J Tucker',
+                'T.J. Warren': 'TJ Warren',
+                'Derrick Jones Jr.': 'Jr., Derrick Jones'
+            }
         }
     }
 
@@ -261,19 +270,11 @@ class PlayerFetcher:
 
             daily_fantasy_sports_site_translations = PlayerFetcher.league_player_name_translation_map.get(daily_fantasy_sports_site_object)
             if daily_fantasy_sports_site_translations is None:
-                try:
-                    return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
-                except Exception:
-                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s',
-                                     name, team_model_object, jersey_number)
+                return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
 
             league_translations = daily_fantasy_sports_site_translations.get(league_object)
             if league_translations is None:
-                try:
-                    return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
-                except Exception:
-                    raise ValueError('Could not identify player: %s on team: %s with jersey: %s',
-                                     name, team_model_object, jersey_number)
+                return PlayerModel.objects.get(team=team_model_object, name=name, jersey=jersey_number)
 
             player_name_translation = league_translations.get(name)
             logger.info('Player Name Translation: %s' % player_name_translation)

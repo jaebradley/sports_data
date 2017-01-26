@@ -6,8 +6,9 @@ import logging
 import logging.config
 import os
 
+from data.object_mapper import ObjectMapper
 from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
+    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, Player as PlayerModel
 from fan_duel_client import FanDuelClient, Sport as FanDuelSport
 
 from data.inserters.daily_fantasy_sports_site import PositionFetcher, TeamFetcher, GameFetcher, PlayerFetcher
@@ -63,14 +64,23 @@ class NbaPlayerGameInserter:
                 logger.info('Game: %s', game)
 
                 player_name = fixture_player.first_name + ' ' + fixture_player.last_name
-                player = PlayerFetcher.get_player(name=player_name, jersey_number=fixture_player.jersey_number,
+                try:
+                    player = PlayerFetcher.get_player(name=player_name, jersey_number=fixture_player.jersey_number,
                                                   team_model_object=player_team,
-                                                  league_object=NbaPlayerGameInserter.league_object)
-                logger.info('Player: %s', player)
+                                                  league_object=NbaPlayerGameInserter.league_object,
+                                                  daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site_object)
+                    logger.info('Player: %s', player)
+                except PlayerModel.DoesNotExist:
+                    # Sometimes FanDuel has players that NBA.com does not
+                    logger.error('Could not identify player: %s with jersey: %s',
+                                 player_name, fixture_player.jersey_number)
+                    return
 
+                fan_duel_model_object = ObjectMapper.to_daily_fantasy_sports_site_model_object(
+                        daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site_object)
                 fan_duel_player_game, created = DailyFantasySportsSitePlayerGameModel.objects \
-                    .get_or_create(daily_fantasy_sports_site=PlayerGameInserter.daily_fantasy_sports_site_object,
-                                   player=player, game=game, salary=fixture_player.salary, site_name=player_name)
+                    .get_or_create(daily_fantasy_sports_site=fan_duel_model_object, player=player, game=game,
+                                   salary=fixture_player.salary, site_name=player_name)
                 logger.info('Created: %s | FanDuel Player Game: %s', created, fan_duel_player_game)
 
                 fan_duel_player_game_position, created = DailyFantasySportsSitePlayerGamePositionModel.objects \
