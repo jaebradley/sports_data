@@ -173,6 +173,7 @@ class GameViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
+
 class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSiteLeaguePositionSerializer
 
@@ -195,6 +196,10 @@ class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(league_position__position__name=position)
 
         return queryset
+
+    def get_positions(self, daily_fantasy_sports_site_id, league_id):
+        return self.get_queryset().filter(daily_fantasy_sports_site_id=daily_fantasy_sports_site_id,
+                                          league_position__league_id=league_id)
 
 
 class DailyFantasySportsSiteLeaguePositionGroupViewSet(ReadOnlyModelViewSet):
