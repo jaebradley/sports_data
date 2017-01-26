@@ -7,6 +7,16 @@ class DfsSite(Enum):
     draft_kings = 'DraftKings'
     fan_duel = 'FanDuel'
 
+    @staticmethod
+    def value_of(name):
+        assert isinstance(name, basestring)
+
+        for site in DfsSite:
+            if site.value == name.upper():
+                return site
+
+        raise ValueError('Unable to identify site with name: %s', site)
+
 
 class Sport(Enum):
     basketball = 'Basketball'
@@ -204,3 +214,14 @@ class Team(Enum):
         'name': 'Washington Wizards',
         'league': League.nba
     }
+
+    @staticmethod
+    def value_of(name, league):
+        assert isinstance(name, basestring)
+        assert isinstance(league, League)
+
+        for team in Team:
+            if team.value['name'] == name.upper() and team.value['league'] == league:
+                return team
+
+        raise ValueError('Unable to identify team with name: %s and league: %s', name, league)
