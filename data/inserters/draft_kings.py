@@ -6,11 +6,12 @@ import logging
 import logging.config
 import os
 
-from data.models import DailyFantasySportsSite as DailyFantasySportsSiteModel, DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
 from draft_kings_client import DraftKingsClient, Sport as DraftKingsSport
 
 from data.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
+from data.object_mapper import ObjectMapper
+from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
+    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
 from data.objects import League as LeagueObject, DfsSite as DfsSiteObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
@@ -18,7 +19,7 @@ logger = logging.getLogger('draft_kings_inserter')
 
 
 class PlayerGameInserter:
-    daily_fantasy_sports_site = DailyFantasySportsSiteModel.objects.get(name=DfsSiteObject.draft_kings.value)
+    daily_fantasy_sports_site = DfsSiteObject.draft_kings
 
     def __init__(self):
         pass
@@ -92,8 +93,10 @@ class NbaPlayerGameInserter:
                                           league_object=NbaPlayerGameInserter.league)
         logger.info('Player: %s' % player)
 
+        daily_fantasy_sports_site_model_object = ObjectMapper.to_daily_fantasy_sports_site_model_object(
+                daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site)
         dfs_player_game, created = DailyFantasySportsSitePlayerGameModel.objects.get_or_create(
-                daily_fantasy_sports_site=PlayerGameInserter.daily_fantasy_sports_site, player=player, game=game,
+                daily_fantasy_sports_site=daily_fantasy_sports_site_model_object, player=player, game=game,
                 salary=draft_group_player.salary, site_name=player_name)
         logger.info('Created: %s | Daily Fantasy Sports Site Player Game: %s', created, dfs_player_game)
 

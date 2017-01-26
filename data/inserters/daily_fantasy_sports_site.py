@@ -17,6 +17,7 @@ from data.models import League as LeagueModel, Team as TeamModel, Season as Seas
     Player as PlayerModel
 from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, Position as PositionObject, \
     Team as TeamObject
+from data.object_mapper import ObjectMapper
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
@@ -69,24 +70,16 @@ class PositionFetcher:
         return league_position
 
     @staticmethod
-    def get_league_position(daily_fantasy_sports_site_object, league_object, position_object):
-        position_object = PositionFetcher.get_position_object(
-            daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
-            league_object=league_object,
-            position_object=position_object)
-
-        league = LeagueModel.objects.get(sport__name=league_object.value['sport'].value,
-                                         league__name=league_object.value['name'])
-        return LeaguePositionModel.objects.get(league=league, position=position_object.value)
-
-    @staticmethod
     def get_or_create_league_position_group(daily_fantasy_sports_site_object, league_object, position_object,
                                             identifier):
         daily_fantasy_sports_site_model_object = DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)
 
-        league_position_model_object = PositionFetcher.get_league_position(
+        league_position_object = PositionFetcher.get_position_object(
             daily_fantasy_sports_site_object=daily_fantasy_sports_site_object, league_object=league_object,
             position_object=position_object)
+        league_position_model_object = ObjectMapper.to_league_position_model_object(
+                league_object=league_object, position_object=league_position_object)
+
         logger.info('League Position: %s', league_position_model_object)
 
         daily_fantasy_sports_site_league_position, created = DailyFantasySportsSiteLeaguePositionModel.objects \
@@ -202,10 +195,7 @@ class TeamFetcher:
         league_team = TeamFetcher.get_team(daily_fantasy_sports_site_object=daily_fantasy_sports_site_object,
                                            league_object=league_object, team_object=team_object)
 
-        league = LeagueModel.objects.get(sport__name=league_object.value['sport'].value,
-                                         league__name=league_object.value['name'])
-
-        return TeamModel.objects.get(league=league, name=league_team.value['name'])
+        return ObjectMapper.to_team_model_object(team_object=league_team)
 
 
 class GameFetcher:
@@ -222,8 +212,7 @@ class GameFetcher:
                                                       league_object=league_object, team_object=home_team_object)
         logger.info('Home Team: %s', home_team)
 
-        league = LeagueModel.objects.get_or_create(sport__name=league_object.value['sport'].value,
-                                                   league__name=league_object.value['name'])
+        league = ObjectMapper.to_league_model_object(league_object=league_object)
         logger.info('League: %s', league)
 
         season = SeasonModel.objects.get(league=league, start_time__lte=start_time, end_time__gte=start_time)
