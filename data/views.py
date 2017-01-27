@@ -10,7 +10,7 @@ daily_fantasy_sports_site_detail = DfsSiteViewSet.as_view({
 })
 
 daily_fantasy_sports_site_league_position_list = DailyFantasySportsSiteLeaguePositionViewSet.as_view({
-    'get': 'get_positions'
+    'get': 'list'
 })
 
 daily_fantasy_sports_site_league_position_detail = DailyFantasySportsSiteLeaguePositionViewSet.as_view({

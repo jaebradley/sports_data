@@ -3,6 +3,8 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from datetime import datetime
 import pytz
+from django.http.response import HttpResponse, JsonResponse
+from rest_framework.response import Response
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, Player, \
     Game, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
@@ -176,30 +178,20 @@ class GameViewSet(ReadOnlyModelViewSet):
 
 class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSiteLeaguePositionSerializer
+    queryset = DailyFantasySportsSiteLeaguePosition.objects.all().order_by('daily_fantasy_sports_site__name',
+                                                                           'league_position__league__name',
+                                                                           'league_position__position__name')
 
-    def get_queryset(self):
-        queryset = DailyFantasySportsSiteLeaguePosition.objects.all().order_by('daily_fantasy_sports_site__name',
-                                                                              'league_position__league__name',
-                                                                              'league_position__position__name')
+    def list(self, request, *args, **kwargs):
+        result = self.get_queryset().filter(daily_fantasy_sports_site_id=kwargs.get('daily_fantasy_sports_site_id'),
+                                            league_position__league_id=kwargs.get('league_id'))
+        page = self.paginate_queryset(result)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
-        league = self.request.query_params.get('league', None)
-        position = self.request.query_params.get('position', None)
-
-        if daily_fantasy_sports_site is not None:
-            queryset = queryset.filter(daily_fantasy_sports_site__name=daily_fantasy_sports_site)
-
-        if league is not None:
-            queryset = queryset.filter(league_position__league__name=league)
-
-        if position is not None:
-            queryset = queryset.filter(league_position__position__name=position)
-
-        return queryset
-
-    def get_positions(self, daily_fantasy_sports_site_id, league_id):
-        return self.get_queryset().filter(daily_fantasy_sports_site_id=daily_fantasy_sports_site_id,
-                                          league_position__league_id=league_id)
+        serializer = self.get_serializer(result, many=True)
+        return Response(serializer.data)
 
 
 class DailyFantasySportsSiteLeaguePositionGroupViewSet(ReadOnlyModelViewSet):
