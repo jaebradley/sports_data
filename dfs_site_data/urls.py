@@ -42,9 +42,9 @@ urlpatterns = [
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/$', teams_list, name='teams_list'),
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/$', team_detail, name='team_detail'),
 
-    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/players/$', players_list, name='players_list'),
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/players/$', players_list, name='players_list'),
 
-    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/games/$', games_list, name='games_list'),
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/games/$', games_list, name='games_list'),
 
     url(r'^daily-fantasy-sports-sites/$', daily_fantasy_sports_site_list, name='daily_fantasy_sports_site_list'),
     url(r'^daily-fantasy-sports-sites/(?P<pk>[0-9]+)/$', daily_fantasy_sports_site_detail,

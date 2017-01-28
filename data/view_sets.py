@@ -150,10 +150,9 @@ class PlayerViewSet(QuerySetReadOnlyViewSet):
     serializer_class = PlayerSerializer
     queryset = Player.objects.all().order_by('name', 'team__league__name', 'team__name')
 
-    def list_team_players(self, request, *args, **kwargs):
+    def list_players(self, request, *args, **kwargs):
         result = self.queryset.filter(team__league__sport__id=kwargs.get('sport_id'),
-                                      team__league__id=kwargs.get('league_id'),
-                                      team__id=kwargs.get('team_id'))
+                                      team__league__id=kwargs.get('league_id'))
         return self.build_response(queryset=result)
 
 
@@ -164,10 +163,10 @@ class GameViewSet(QuerySetReadOnlyViewSet):
     def list_games(self, request, *args, **kwargs):
         home_team_results = self.queryset.filter(home_team__league__sport__id=kwargs.get('sport_id'),
                                                  home_team__league__id=kwargs.get('league_id'),
-                                                 home_team__id=kwargs.get('team_id'))
+                                                 season__league__id=kwargs.get('league_id'))
         away_team_results = self.queryset.filter(away_team__league__sport__id=kwargs.get('sport_id'),
                                                  away_team__league__id=kwargs.get('league_id'),
-                                                 away_team__id=kwargs.get('team_id'))
+                                                 season__league__id=kwargs.get('league_id'))
 
         combined = home_team_results | away_team_results
         combined = combined.order_by('start_time')
