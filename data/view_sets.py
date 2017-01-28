@@ -15,6 +15,17 @@ from data.serializers import DailyFantasySportsSiteSerializer, SportSerializer, 
     DailyFantasySportsSiteLeaguePositionGroupSerializer, DailyFantasySportsSitePlayerGameSerializer
 
 
+class QuerySetReadOnlyViewSet(ReadOnlyModelViewSet):
+    def build_response(self, queryset):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 class DfsSiteViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSiteSerializer
 
@@ -51,20 +62,19 @@ class PositionViewSet(ReadOnlyModelViewSet):
         return queryset
 
 
-class LeagueViewSet(ReadOnlyModelViewSet):
+class LeagueViewSet(QuerySetReadOnlyViewSet):
     serializer_class = LeagueSerializer
+    queryset = League.objects.all().order_by('name')
 
-    def get_queryset(self):
-        queryset = League.objects.all().order_by('name')
-        name = self.request.query_params.get('name', None)
-        sport = self.request.query_params.get('sport', None)
-        if name is not None:
-            queryset = queryset.filter(name=name)
+    def list_sport_leagues(self, request, *args, **kwargs):
+        result = self.queryset.filter(sport__id=kwargs.get('sport_id'))
+        return self.build_response(queryset=result)
 
-        if sport is not None:
-            queryset = queryset.filter(sport__name=sport)
+    def retrieve_sport_leagues(self, request, *args, **kwargs):
+        result = self.queryset.filter(sport__id=kwargs.get('sport_id'),
+                                      id=kwargs.get('league_id'))
 
-        return queryset
+        return self.build_response(queryset=result)
 
 
 class LeaguePositionViewSet(ReadOnlyModelViewSet):
@@ -108,6 +118,7 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(result, many=True)
 
         return Response(serializer.data)
+
 
 class TeamViewSet(ReadOnlyModelViewSet):
     serializer_class = TeamSerializer
