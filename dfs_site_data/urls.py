@@ -22,7 +22,7 @@ from data.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
     daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
     daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail, league_position_list, \
-    league_position_detail, sport_leagues_list, sport_leagues_detail
+    league_position_detail, sport_leagues_list, sport_leagues_detail, team_detail
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -39,6 +39,8 @@ urlpatterns = [
 
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/$', sport_leagues_list, name='sport_leagues_list'),
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/$', sport_leagues_detail, name='sport_leagues_detail'),
+
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/$', team_detail, name='team_detail'),
 
     url(r'^daily-fantasy-sports-sites/$', daily_fantasy_sports_site_list, name='daily_fantasy_sports_site_list'),
     url(r'^daily-fantasy-sports-sites/(?P<pk>[0-9]+)/$', daily_fantasy_sports_site_detail,

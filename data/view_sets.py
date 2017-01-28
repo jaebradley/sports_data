@@ -120,26 +120,15 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class TeamViewSet(ReadOnlyModelViewSet):
+class TeamViewSet(QuerySetReadOnlyViewSet):
     serializer_class = TeamSerializer
+    queryset = Team.objects.all().order_by('name')
 
-    def get_queryset(self):
-        queryset = Team.objects.all().order_by('name')
-
-        league = self.request.query_params.get('league', None)
-        name = self.request.query_params.get('name', None)
-        sport = self.request.query_params.get('sport', None)
-
-        if name is not None:
-            queryset = queryset.filter(name=name)
-
-        if league is not None:
-            queryset = queryset.filter(league__name=league)
-
-        if sport is not None:
-            queryset = queryset.filter(league__sport__name=sport)
-
-        return queryset
+    def retrieve_team(self, request, *args, **kwargs):
+        result = self.queryset.filter(league__sport__id=kwargs.get('sport_id'),
+                                      league__id=kwargs.get('league_id'),
+                                      id=kwargs.get('team_id'))
+        return self.build_response(queryset=result)
 
 
 class SeasonViewSet(ReadOnlyModelViewSet):
