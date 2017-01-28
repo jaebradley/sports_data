@@ -17,17 +17,17 @@ Including another URLconf
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from data.view_sets import SeasonViewSet, PlayerViewSet, GameViewSet
+from data.view_sets import SeasonViewSet, GameViewSet
 from data.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site_detail, \
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
     daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
     daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail, league_position_list, \
-    league_position_detail, sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail
+    league_position_detail, sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail, \
+    players_list
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'seasons', SeasonViewSet, base_name='seasons')
-router.register(r'players', PlayerViewSet, base_name='players')
 router.register(r'games', GameViewSet, base_name='games')
 
 urlpatterns = [
@@ -41,6 +41,8 @@ urlpatterns = [
 
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/$', teams_list, name='teams_list'),
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/$', team_detail, name='team_detail'),
+
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/teams/(?P<team_id>[0-9]+)/players/$', players_list, name='players_list'),
 
     url(r'^daily-fantasy-sports-sites/$', daily_fantasy_sports_site_list, name='daily_fantasy_sports_site_list'),
     url(r'^daily-fantasy-sports-sites/(?P<pk>[0-9]+)/$', daily_fantasy_sports_site_detail,

@@ -1,6 +1,6 @@
 from data.view_sets import DfsSiteViewSet, DailyFantasySportsSiteLeaguePositionViewSet, \
     DailyFantasySportsSiteLeaguePositionGroupViewSet, DailyFantasySportsSitePlayerGameViewSet, LeaguePositionViewSet, \
-    LeagueViewSet, TeamViewSet, SportViewSet
+    LeagueViewSet, TeamViewSet, SportViewSet, PlayerViewSet
 
 sports_list = SportViewSet.as_view({
     'get': 'list_sports'
@@ -23,6 +23,10 @@ team_detail = TeamViewSet.as_view({
 
 teams_list = TeamViewSet.as_view({
     'get': 'list_teams'
+})
+
+players_list = PlayerViewSet.as_view({
+    'get': 'list_team_players'
 })
 
 league_position_list = LeaguePositionViewSet.as_view({

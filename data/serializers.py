@@ -61,7 +61,7 @@ class PlayerSerializer(ModelSerializer):
 
     class Meta:
         model = Player()
-        fields = ('id', 'name', 'team')
+        fields = ('id', 'name', 'team', 'jersey')
 
 
 class GameSerializer(ModelSerializer):
