@@ -50,18 +50,6 @@ class SportViewSet(QuerySetReadOnlyViewSet):
         return self.build_response(queryset=result)
 
 
-class PositionViewSet(ReadOnlyModelViewSet):
-    serializer_class = PositionSerializer
-
-    def get_queryset(self):
-        queryset = Position.objects.all().order_by('name')
-        name = self.request.query_params.get('name', None)
-        if name is not None:
-            queryset = queryset.filter(name=name)
-
-        return queryset
-
-
 class LeagueViewSet(QuerySetReadOnlyViewSet):
     serializer_class = LeagueSerializer
     queryset = League.objects.all().order_by('name')
