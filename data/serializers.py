@@ -8,19 +8,19 @@ from data.models import DailyFantasySportsSite, Sport, League, Team, Position, L
 class DailyFantasySportsSiteSerializer(ModelSerializer):
     class Meta:
         model = DailyFantasySportsSite()
-        fields = ('name', )
+        fields = ('id', 'name')
 
 
 class SportSerializer(ModelSerializer):
     class Meta:
         model = Sport()
-        fields = ('name', )
+        fields = ('id', 'name')
 
 
 class PositionSerializer(ModelSerializer):
     class Meta:
         model = Position()
-        fields = ('name', )
+        fields = ('id', 'name')
 
 
 class LeagueSerializer(ModelSerializer):
@@ -28,7 +28,7 @@ class LeagueSerializer(ModelSerializer):
 
     class Meta:
         model = League()
-        fields = ('name', 'sport')
+        fields = ('id', 'name', 'sport')
 
 
 class LeaguePositionSerializer(ModelSerializer):
@@ -37,7 +37,7 @@ class LeaguePositionSerializer(ModelSerializer):
 
     class Meta:
         model = LeaguePosition()
-        fields = ('league', 'position')
+        fields = ('id', 'league', 'position')
 
 
 class TeamSerializer(ModelSerializer):
@@ -45,7 +45,7 @@ class TeamSerializer(ModelSerializer):
 
     class Meta:
         model = Team()
-        fields = ('name', 'league')
+        fields = ('id', 'name', 'league')
 
 
 class SeasonSerializer(ModelSerializer):
@@ -53,7 +53,7 @@ class SeasonSerializer(ModelSerializer):
 
     class Meta:
         model = Season()
-        fields = ('league', 'start_time', 'end_time')
+        fields = ('id', 'league', 'start_time', 'end_time')
 
 
 class PlayerSerializer(ModelSerializer):
@@ -61,7 +61,7 @@ class PlayerSerializer(ModelSerializer):
 
     class Meta:
         model = Player()
-        fields = ('name', 'team')
+        fields = ('id', 'name', 'team')
 
 
 class GameSerializer(ModelSerializer):
@@ -71,7 +71,7 @@ class GameSerializer(ModelSerializer):
 
     class Meta:
         model = Game()
-        fields = ('home_team', 'away_team', 'season', 'start_time')
+        fields = ('id', 'home_team', 'away_team', 'season', 'start_time')
 
 
 class DailyFantasySportsSiteLeaguePositionSerializer(ModelSerializer):
@@ -80,7 +80,7 @@ class DailyFantasySportsSiteLeaguePositionSerializer(ModelSerializer):
 
     class Meta:
         model = DailyFantasySportsSiteLeaguePosition()
-        fields = ('daily_fantasy_sports_site', 'league_position')
+        fields = ('id', 'daily_fantasy_sports_site', 'league_position')
 
 
 class DailyFantasySportsSiteLeaguePositionGroupSerializer(ModelSerializer):
@@ -88,7 +88,7 @@ class DailyFantasySportsSiteLeaguePositionGroupSerializer(ModelSerializer):
 
     class Meta:
         model = DailyFantasySportsSiteLeaguePositionGroup()
-        fields = ('daily_fantasy_sports_site_league_position', 'identifier')
+        fields = ('id', 'daily_fantasy_sports_site_league_position', 'identifier')
 
 
 class DailyFantasySportsSitePlayerGameSerializer(ModelSerializer):
@@ -98,4 +98,4 @@ class DailyFantasySportsSitePlayerGameSerializer(ModelSerializer):
 
     class Meta:
         model = DailyFantasySportsSitePlayerGame()
-        fields = ('daily_fantasy_sports_site', 'player', 'game', 'salary', 'site_name')
+        fields = ('id', 'daily_fantasy_sports_site', 'player', 'game', 'salary', 'site_name')

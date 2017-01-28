@@ -193,6 +193,18 @@ class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(result, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, *args, **kwargs):
+        result = self.get_queryset().filter(daily_fantasy_sports_site_id=kwargs.get('daily_fantasy_sports_site_id'),
+                                            league_position__league_id=kwargs.get('league_id'),
+                                            league_position__position_id=kwargs.get('position_id'))
+        page = self.paginate_queryset(result)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(result, many=True)
+        return Response(serializer.data)
+
 
 class DailyFantasySportsSiteLeaguePositionGroupViewSet(ReadOnlyModelViewSet):
     serializer_class = DailyFantasySportsSiteLeaguePositionGroupSerializer
