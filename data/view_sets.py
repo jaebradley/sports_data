@@ -38,16 +38,12 @@ class DfsSiteViewSet(ReadOnlyModelViewSet):
         return queryset
 
 
-class SportViewSet(ReadOnlyModelViewSet):
+class SportViewSet(QuerySetReadOnlyViewSet):
     serializer_class = SportSerializer
+    queryset = Sport.objects.all().order_by('name')
 
-    def get_queryset(self):
-        queryset = Sport.objects.all().order_by('name')
-        name = self.request.query_params.get('name', None)
-        if name is not None:
-            queryset = queryset.filter(name=name)
-
-        return queryset
+    def list_sports(self, request, *args, **kwargs):
+        return self.build_response(queryset=self.queryset)
 
 
 class PositionViewSet(ReadOnlyModelViewSet):
