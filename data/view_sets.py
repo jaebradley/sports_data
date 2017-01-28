@@ -1,7 +1,7 @@
 # Create your views here.
 
 from datetime import datetime
-
+from django.db.models import Q
 import pytz
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -157,30 +157,21 @@ class PlayerViewSet(QuerySetReadOnlyViewSet):
         return self.build_response(queryset=result)
 
 
-class GameViewSet(ReadOnlyModelViewSet):
+class GameViewSet(QuerySetReadOnlyViewSet):
     serializer_class = GameSerializer
+    queryset = Game.objects.all().order_by('start_time')
 
-    def get_queryset(self):
-        queryset = Game.objects.all().order_by('-start_time')
+    def list_games(self, request, *args, **kwargs):
+        home_team_results = self.queryset.filter(home_team__league__sport__id=kwargs.get('sport_id'),
+                                                 home_team__league__id=kwargs.get('league_id'),
+                                                 home_team__id=kwargs.get('team_id'))
+        away_team_results = self.queryset.filter(away_team__league__sport__id=kwargs.get('sport_id'),
+                                                 away_team__league__id=kwargs.get('league_id'),
+                                                 away_team__id=kwargs.get('team_id'))
 
-        league = self.request.query_params.get('league', None)
-        home_team = self.request.query_params.get('home_team', None)
-        away_team = self.request.query_params.get('away_team', None)
-        start_time = self.request.query_params.get('start_time', None)
-
-        if league is not None:
-            queryset = queryset.filter(home_team__league__name=league).filter(away_team__league_name=league)
-
-        if home_team is not None:
-            queryset = queryset.filter(home_team__name=home_team)
-
-        if away_team is not None:
-            queryset = queryset.filter(away_team__name=away_team)
-
-        if start_time is not None:
-            queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
-
-        return queryset
+        combined = home_team_results | away_team_results
+        combined = combined.order_by('start_time')
+        return self.build_response(queryset=combined)
 
 
 class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
