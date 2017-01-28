@@ -6,6 +6,10 @@ sports_list = SportViewSet.as_view({
     'get': 'list_sports'
 })
 
+sport_detail = SportViewSet.as_view({
+    'get': 'retrieve_sport'
+})
+
 sport_leagues_list = LeagueViewSet.as_view({
     'get': 'list_sport_leagues'
 })

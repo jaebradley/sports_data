@@ -45,6 +45,10 @@ class SportViewSet(QuerySetReadOnlyViewSet):
     def list_sports(self, request, *args, **kwargs):
         return self.build_response(queryset=self.queryset)
 
+    def retrieve_sport(self, request, *args, **kwargs):
+        result = self.queryset.filter(id=kwargs.get('sport_id'))
+        return self.build_response(queryset=result)
+
 
 class PositionViewSet(ReadOnlyModelViewSet):
     serializer_class = PositionSerializer
