@@ -13,6 +13,10 @@ team_detail = TeamViewSet.as_view({
     'get': 'retrieve_team'
 })
 
+teams_list = TeamViewSet.as_view({
+    'get': 'list_teams'
+})
+
 league_position_list = LeaguePositionViewSet.as_view({
     'get': 'list'
 })

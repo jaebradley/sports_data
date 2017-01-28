@@ -1,10 +1,10 @@
 # Create your views here.
 
-from rest_framework.viewsets import ReadOnlyModelViewSet
 from datetime import datetime
+
 import pytz
-from django.http.response import HttpResponse, JsonResponse
 from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from data.models import DailyFantasySportsSite, Sport, League, Team, Position, LeaguePosition, Season, Player, \
     Game, DailyFantasySportsSiteLeaguePosition, DailyFantasySportsSiteLeaguePositionGroup, \
@@ -123,6 +123,11 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
 class TeamViewSet(QuerySetReadOnlyViewSet):
     serializer_class = TeamSerializer
     queryset = Team.objects.all().order_by('name')
+
+    def list_teams(self, request, *args, **kwargs):
+        result = self.queryset.filter(league__sport__id=kwargs.get('sport_id'),
+                                      league__id=kwargs.get('league_id'))
+        return self.build_response(queryset=result)
 
     def retrieve_team(self, request, *args, **kwargs):
         result = self.queryset.filter(league__sport__id=kwargs.get('sport_id'),
