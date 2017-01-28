@@ -69,6 +69,7 @@ class LeagueViewSet(ReadOnlyModelViewSet):
 
 class LeaguePositionViewSet(ReadOnlyModelViewSet):
     serializer_class = LeaguePositionSerializer
+    queryset = LeaguePosition.objects.all().order_by('position')
 
     def get_queryset(self):
         queryset = LeaguePosition.objects.all().order_by('position')
@@ -83,6 +84,30 @@ class LeaguePositionViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
+    def list(self, request, *args, **kwargs):
+        result = self.queryset.filter(league__id=kwargs.get('league_id'))
+
+        page = self.paginate_queryset(result)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(result, many=True)
+
+        return Response(serializer.data)
+
+    def detail(self, request, *args, **kwargs):
+        result = self.queryset.filter(league__id=kwargs.get('league_id'),
+                                      position__id=kwargs.get('position_id'))
+
+        page = self.paginate_queryset(result)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(result, many=True)
+
+        return Response(serializer.data)
 
 class TeamViewSet(ReadOnlyModelViewSet):
     serializer_class = TeamSerializer
