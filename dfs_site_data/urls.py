@@ -20,9 +20,8 @@ from rest_framework.routers import DefaultRouter
 from data.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site_detail, \
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
     daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
-    daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail, league_position_list, \
-    league_position_detail, sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail, \
-    players_list, games_list, player_detail, game_detail, seasons_list
+    daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail, sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail, \
+    players_list, games_list, player_detail, game_detail, seasons_list, league_position_list, league_position_detail
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -44,17 +43,19 @@ urlpatterns = [
         player_detail, name='player_detail'),
 
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/games/$', games_list, name='games_list'),
-    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/games/(?P<game_id>[0-9]+)$',
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/games/(?P<game_id>[0-9]+)/$',
         game_detail, name='game_detail'),
 
     url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/seasons/$', seasons_list, name='seasons_list'),
 
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/positions/$',
+        league_position_list, name='league_position_list'),
+    url(r'^sports/(?P<sport_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/positions/(?P<position_id>[0-9]+)/$',
+        league_position_detail, name='league_position_detail'),
+
     url(r'^daily-fantasy-sports-sites/$', daily_fantasy_sports_site_list, name='daily_fantasy_sports_site_list'),
     url(r'^daily-fantasy-sports-sites/(?P<pk>[0-9]+)/$', daily_fantasy_sports_site_detail,
         name='daily_fantasy_sports_site_detail'),
-
-    url(r'^leagues/(?P<league_id>[0-9]+)/positions/$', league_position_list, name='league_position_list'),
-    url(r'^leagues/(?P<league_id>[0-9]+)/positions/(?P<position_id>[0-9]+)/$', league_position_detail, name='league_position_detail'),
 
     url(r'^daily-fantasy-sports-sites/(?P<daily_fantasy_sports_site_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/positions/$', daily_fantasy_sports_site_league_position_list,
         name='daily_fantasy_sports_site_league_position_list'),
