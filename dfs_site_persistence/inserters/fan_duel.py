@@ -6,13 +6,13 @@ import logging
 import logging.config
 import os
 
-from data.object_mapper import ObjectMapper
-from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, Player as PlayerModel
 from fan_duel_client import FanDuelClient, Sport as FanDuelSport
 
-from data.inserters.daily_fantasy_sports_site import PositionFetcher, TeamFetcher, GameFetcher, PlayerFetcher
+from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
+    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, Player as PlayerModel
+from data.object_mapper import ObjectMapper
 from data.objects import League as LeagueObject, DfsSite as DfsSiteObject
+from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, TeamFetcher, GameFetcher, PlayerFetcher
 from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))

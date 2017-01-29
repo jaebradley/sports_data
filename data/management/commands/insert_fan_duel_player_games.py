@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters.fan_duel import PlayerGameInserter
+from dfs_site_persistence.inserters.fan_duel import PlayerGameInserter
 
 
 class Command(BaseCommand):

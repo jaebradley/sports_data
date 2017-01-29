@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters.draft_kings import PlayerGameInserter
+from dfs_site_persistence.inserters.draft_kings import PlayerGameInserter
 
 
 class Command(BaseCommand):
