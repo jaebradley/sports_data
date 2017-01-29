@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'data',
+    'dfs_site_persistence',
+    'nba_persistence',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
