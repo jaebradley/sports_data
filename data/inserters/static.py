@@ -1,25 +1,15 @@
-import os
 import logging
 import logging.config
+import os
 
-from data.objects import DfsSite as DfsSiteObject, Sport as SportObject, League as LeagueObject, Team as TeamObject, \
-    Position as PositionObject, LeaguePosition as LeaguePositionObject, Season as SeasonObject
-from data.models import DailyFantasySportsSite as DfsSiteModel, Sport as SportModel, League as LeagueModel, Team as TeamModel, \
+from data.models import Sport as SportModel, League as LeagueModel, Team as TeamModel, \
     Position as PositionModel, LeaguePosition as LeaguePositionModel, Season as SeasonModel
+from data.objects import Sport as SportObject, League as LeagueObject, Team as TeamObject, \
+    Position as PositionObject, LeaguePosition as LeaguePositionObject, Season as SeasonObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
 
-
-class DfsSiteInserter:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def insert():
-        logger.info('Inserting DFS sites')
-        DfsSiteModel.objects.bulk_create([DfsSiteModel(name=site.value) for site in DfsSiteObject])
 
 
 class SportInserter:

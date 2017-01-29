@@ -6,23 +6,31 @@ import logging
 import logging.config
 import os
 
-from django.core.exceptions import ObjectDoesNotExist
-
 from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
 from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
-from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, \
-    DailyFantasySportsSite as DailyFantasySportsSiteModel, \
-    DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
-    LeaguePosition as LeaguePositionModel, \
-    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel, \
+from data.models import Team as TeamModel, Season as SeasonModel, Game as GameModel, \
     Player as PlayerModel
-from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, Position as PositionObject, \
-    Team as TeamObject
 from data.object_mapper import ObjectMapper
+from data.objects import League as LeagueObject, Position as PositionObject, Team as TeamObject
+from dfs_site_persistence.models import DailyFantasySportsSite as DailyFantasySportsSiteModel, \
+    DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
+    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
+from dfs_site_persistence.objects import DfsSite as DfsSiteObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
+
+
+class DfsSiteInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        logger.info('Inserting DFS sites')
+        DailyFantasySportsSiteModel.objects.bulk_create([DailyFantasySportsSiteModel(name=site.value) for site in DfsSiteObject])
 
 
 class PositionFetcher:
