@@ -73,7 +73,7 @@ class PositionFetcher:
 
     @staticmethod
     def get_or_create_league_position_group(daily_fantasy_sports_site_object, league_object, position_object,
-                                            identifier):
+                                            site_identifier):
         daily_fantasy_sports_site_model_object = DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)
 
         league_position_object = PositionFetcher.get_position_object(
@@ -91,7 +91,7 @@ class PositionFetcher:
 
         daily_fantasy_sports_site_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
             .get_or_create(daily_fantasy_sports_site_league_position=daily_fantasy_sports_site_league_position,
-                           identifier=identifier)
+                           site_identifer=identifier)
         logger.info('Created: %s | FanDuel League Position Group: %s', created, daily_fantasy_sports_site_position_group)
 
         return daily_fantasy_sports_site_position_group

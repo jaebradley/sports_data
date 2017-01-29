@@ -65,7 +65,7 @@ class NbaPlayerGameInserter:
             league_position_group = PositionFetcher.get_or_create_league_position_group(
                 daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site,
                 league_object=NbaPlayerGameInserter.league, position_object=position,
-                identifier=position_group.position_group_id)
+                site_identifier=position_group.position_group_id)
             draft_kings_league_position_groups.append(league_position_group)
         return draft_kings_league_position_groups
 

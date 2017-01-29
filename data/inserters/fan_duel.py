@@ -48,7 +48,7 @@ class NbaPlayerGameInserter:
                 fan_duel_league_position_group = PositionFetcher.get_or_create_league_position_group(
                         daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site_object,
                         league_object=NbaPlayerGameInserter.league_object, position_object=fixture_player.position,
-                        identifier=None)
+                        site_identifier=None)
                 logger.info('Fan Duel League Position Group: %s', fan_duel_league_position_group)
 
                 player_team = TeamFetcher.get_team_model_object(
