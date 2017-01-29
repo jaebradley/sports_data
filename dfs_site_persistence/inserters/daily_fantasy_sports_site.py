@@ -99,7 +99,7 @@ class PositionFetcher:
 
         daily_fantasy_sports_site_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
             .get_or_create(daily_fantasy_sports_site_league_position=daily_fantasy_sports_site_league_position,
-                           site_identifer=identifier)
+                           site_identifier=site_identifier)
         logger.info('Created: %s | FanDuel League Position Group: %s', created, daily_fantasy_sports_site_position_group)
 
         return daily_fantasy_sports_site_position_group
