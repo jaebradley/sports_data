@@ -155,6 +155,13 @@ class PlayerViewSet(QuerySetReadOnlyViewSet):
                                       team__league__id=kwargs.get('league_id'))
         return self.build_response(queryset=result)
 
+    def retrieve_player(self, request, *args, **kwargs):
+        result = self.queryset.filter(team__league__sport__id=kwargs.get('sport_id'),
+                                      team__league__id=kwargs.get('league_id'),
+                                      id=kwargs.get('player_id'))
+
+        return self.build_response(queryset=result)
+
 
 class GameViewSet(QuerySetReadOnlyViewSet):
     serializer_class = GameSerializer

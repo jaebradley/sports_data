@@ -29,6 +29,10 @@ players_list = PlayerViewSet.as_view({
     'get': 'list_players'
 })
 
+player_detail = PlayerViewSet.as_view({
+    'get': 'retrieve_player'
+})
+
 games_list = GameViewSet.as_view({
     'get': 'list_games'
 })
