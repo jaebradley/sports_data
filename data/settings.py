@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'data.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dfs_site_data',
+        'NAME': 'sports_data',
         'USER': '',
         'PASSWORD': '',
         'HOST': 'localhost',
