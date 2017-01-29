@@ -5,7 +5,8 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from data.models import Sport, League, Team, LeaguePosition, Season, Player, \
     Game
-from data.serializers import SportSerializer, LeagueSerializer, TeamSerializer, LeaguePositionSerializer, SeasonSerializer, PlayerSerializer, GameSerializer
+from data.serializers import SportSerializer, LeagueSerializer, TeamSerializer, LeaguePositionSerializer, \
+    SeasonSerializer, PlayerSerializer, GameSerializer
 
 
 class QuerySetReadOnlyViewSet(ReadOnlyModelViewSet):
