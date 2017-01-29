@@ -8,7 +8,7 @@ import os
 
 from draft_kings_client import DraftKingsClient, Sport as DraftKingsSport
 
-from data.object_mapper import ObjectMapper
+from dfs_site_persistence.object_mapper import ObjectMapper
 from data.objects import League as LeagueObject
 from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
 from dfs_site_persistence.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \

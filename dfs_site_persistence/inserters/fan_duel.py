@@ -9,7 +9,7 @@ import os
 from fan_duel_client import FanDuelClient, Sport as FanDuelSport
 
 from data.models import Player as PlayerModel
-from data.object_mapper import ObjectMapper
+from dfs_site_persistence.object_mapper import ObjectMapper
 from data.objects import League as LeagueObject
 from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, TeamFetcher, GameFetcher, PlayerFetcher
 from dfs_site_persistence.models import \
