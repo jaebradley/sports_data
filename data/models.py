@@ -113,13 +113,13 @@ class DailyFantasySportsSiteLeaguePosition(Model):
 
 class DailyFantasySportsSiteLeaguePositionGroup(Model):
     daily_fantasy_sports_site_league_position = ForeignKey(DailyFantasySportsSiteLeaguePosition, on_delete=CASCADE)
-    identifier = IntegerField(null=True)
+    site_identifier = IntegerField(null=True)
 
     class Meta:
-        unique_together = ('daily_fantasy_sports_site_league_position', 'identifier')
+        unique_together = ('daily_fantasy_sports_site_league_position', 'site_identifier')
 
     def __unicode__(self):
-        return '{0} - {1}'.format(self.daily_fantasy_sports_site_league_position, self.identifier)
+        return '{0} - {1}'.format(self.daily_fantasy_sports_site_league_position, self.site_identifier)
 
 
 class DailyFantasySportsSitePlayerGame(Model):
