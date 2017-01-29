@@ -17,11 +17,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from data.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site_detail, \
+from data.views import sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail, \
+    players_list, games_list, player_detail, game_detail, seasons_list, league_position_list, league_position_detail
+from dfs_site_persistence.views import daily_fantasy_sports_site_list, daily_fantasy_sports_site_detail, \
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
     daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
-    daily_fantasy_sports_site_player_game_list, daily_fantasy_sports_site_player_game_detail, sport_leagues_list, sport_leagues_detail, team_detail, teams_list, sports_list, sport_detail, \
-    players_list, games_list, player_detail, game_detail, seasons_list, league_position_list, league_position_detail
+    daily_fantasy_sports_site_player_game_list
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
