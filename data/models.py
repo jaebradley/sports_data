@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 # Create your models here.
 
 
-from django.db.models import Model, BigIntegerField, DecimalField, IntegerField, CharField, DateTimeField, ForeignKey, \
+from django.db.models import Model, BigIntegerField, CharField, DateTimeField, ForeignKey, \
     CASCADE
+
 
 class Sport(Model):
     name = CharField(max_length=100, unique=True)
