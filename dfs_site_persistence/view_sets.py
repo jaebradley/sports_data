@@ -6,8 +6,9 @@ import pytz
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from data.serializers import DailyFantasySportsSiteSerializer, DailyFantasySportsSiteLeaguePositionSerializer, \
-    DailyFantasySportsSiteLeaguePositionGroupSerializer, DailyFantasySportsSitePlayerGameSerializer
+from dfs_site_persistence.serializers import DailyFantasySportsSiteSerializer, \
+    DailyFantasySportsSiteLeaguePositionSerializer, DailyFantasySportsSiteLeaguePositionGroupSerializer, \
+    DailyFantasySportsSitePlayerGameSerializer
 from data.view_sets import QuerySetReadOnlyViewSet
 from dfs_site_persistence.models import DailyFantasySportsSite, DailyFantasySportsSiteLeaguePosition, \
     DailyFantasySportsSiteLeaguePositionGroup, DailyFantasySportsSitePlayerGame
