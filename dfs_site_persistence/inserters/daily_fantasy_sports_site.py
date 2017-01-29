@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import logging
 import logging.config
 import os
+from datetime import datetime, timedelta
 
 from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
 from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
@@ -228,7 +229,10 @@ class GameFetcher:
         season = SeasonModel.objects.get(league=league, start_time__lte=start_time, end_time__gte=start_time)
         logger.info('Season: %s', season)
 
-        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time__contains=start_time.date())
+        # TODO: This is so shitty - @jbradley to fix in future
+        max_start_time = start_time + timedelta(hours=12)
+
+        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time__gte=start_time, start_time__lte=max_start_time)
         logger.info('Game: %s', game)
 
         return game
@@ -292,3 +296,7 @@ class PlayerFetcher:
 
             logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
             return PlayerModel.objects.get(team=team_model_object, name=player_name_translation, jersey=jersey_number)
+        except PlayerModel.DoesNotExist:
+            logger.error('Player with name: %s, jersey: %s, team: %s does not exist',
+                         name, jersey_number, team_model_object)
+            raise PlayerModel.DoesNotExist

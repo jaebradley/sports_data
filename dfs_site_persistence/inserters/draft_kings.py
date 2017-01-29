@@ -9,6 +9,7 @@ import os
 from draft_kings_client import DraftKingsClient, Sport as DraftKingsSport
 
 from dfs_site_persistence.object_mapper import ObjectMapper
+from data.models import Player as PlayerModel
 from data.objects import League as LeagueObject
 from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
 from dfs_site_persistence.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
@@ -47,8 +48,12 @@ class NbaPlayerGameInserter:
                 draft_kings_league_position_groups = NbaPlayerGameInserter.get_or_create_league_position_groups(position_group=draft_group_player.position_group)
                 logger.info('DraftKings League Position Groups: %s' % draft_kings_league_position_groups)
 
-                draft_kings_player_game = NbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
-                logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
+                # TODO: @jbradley this is because for whatever reasons DK has players that NBA.com does not - still pretty shitty logic
+                try:
+                    draft_kings_player_game = NbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
+                    logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
+                except PlayerModel.DoesNotExist:
+                    break
 
                 for draft_kings_league_position_group in draft_kings_league_position_groups:
                     logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
