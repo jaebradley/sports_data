@@ -225,24 +225,16 @@ class DailyFantasySportsSiteLeaguePositionGroupViewSet(QuerySetReadOnlyViewSet):
         return self.build_response(queryset=result)
 
 
-class DailyFantasySportsSitePlayerGameViewSet(ReadOnlyModelViewSet):
+class DailyFantasySportsSitePlayerGameViewSet(QuerySetReadOnlyViewSet):
     serializer_class = DailyFantasySportsSitePlayerGameSerializer
+    queryset = DailyFantasySportsSitePlayerGame.objects.all().order_by('daily_fantasy_sports_site__name',
+                                                                       'player__name', 'game__start_time', 'salary')
 
-    def get_queryset(self):
-        queryset = DailyFantasySportsSitePlayerGame.objects.all().order_by('daily_fantasy_sports_site__name',
-                                                                           'player__name', '-game__start_time',
-                                                                           '-salary')
-        daily_fantasy_sports_site = self.request.query_params.get('daily_fantasy_sports_site', None)
-        player = self.request.query_params.get('player', None)
+    def filter_queryset(self, queryset):
+
         start_time = self.request.query_params.get('start_time', None)
         max_salary = self.request.query_params.get('max_salary', None)
         min_salary = self.request.query_params.get('min_salary', None)
-
-        if daily_fantasy_sports_site is not None:
-            queryset = queryset.filter(daily_fantasy_sports_site__name=daily_fantasy_sports_site)
-
-        if player is not None:
-            queryset = queryset.filter(player__name=player)
 
         if start_time is not None:
             queryset = queryset.filter(game__start_time=datetime.fromtimestamp(float(start_time), pytz.utc))
@@ -254,3 +246,12 @@ class DailyFantasySportsSitePlayerGameViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(salary__gte=float(min_salary))
 
         return queryset
+
+    def list_player_games(self, request, *args, **kwargs):
+        result = self.queryset.filter(daily_fantasy_sports_site__id=kwargs.get('daily_fantasy_sports_site_id'),
+                                      player__team__league__id=kwargs.get('league_id'),
+                                      game__home_team__league_id=kwargs.get('league_id'),
+                                      game__away_team__league_id=kwargs.get('league_id'),
+                                      season__league__id=kwargs.get('league_id'))
+
+        return self.build_response(queryset=result)

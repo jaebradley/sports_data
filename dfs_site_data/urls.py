@@ -67,8 +67,8 @@ urlpatterns = [
     url(r'^daily-fantasy-sports-sites/(?P<daily_fantasy_sports_site_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/position-groups/(?P<position_group_id>[0-9]+)/$',
         daily_fantasy_sports_site_league_position_group_detail, name='daily_fantasy_sports_site_league_position_group_detail'),
 
-    url(r'^daily-fantasy-sports-sites/games/players/$', daily_fantasy_sports_site_player_game_list,
-        name='daily_fantasy_sports_site_player_game_list'),
+    url(r'^daily-fantasy-sports-sites/(?P<daily_fantasy_sports_site_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/player-games/$',
+        daily_fantasy_sports_site_player_game_list, name='daily_fantasy_sports_site_player_game_list'),
     url(r'^daily-fantasy-sports-sites/games/players/(?P<pk>[0-9]+)/$',
         daily_fantasy_sports_site_player_game_detail, name='daily_fantasy_sports_site_player_game_detail'),
 ]

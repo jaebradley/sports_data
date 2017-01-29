@@ -78,7 +78,7 @@ daily_fantasy_sports_site_league_position_group_detail = DailyFantasySportsSiteL
 })
 
 daily_fantasy_sports_site_player_game_list = DailyFantasySportsSitePlayerGameViewSet.as_view({
-    'get': 'list'
+    'get': 'list_player_games'
 })
 
 daily_fantasy_sports_site_player_game_detail = DailyFantasySportsSitePlayerGameViewSet.as_view({
