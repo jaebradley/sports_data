@@ -124,26 +124,15 @@ class TeamViewSet(QuerySetReadOnlyViewSet):
         return self.build_response(queryset=result)
 
 
-class SeasonViewSet(ReadOnlyModelViewSet):
+class SeasonViewSet(QuerySetReadOnlyViewSet):
     serializer_class = SeasonSerializer
+    queryset = Season.objects.all().order_by('start_time', 'end_time')
 
-    def get_queryset(self):
-        queryset = Season.objects.all().order_by('-start_time', '-end_time')
+    def list_seasons(self, request, *args, **kwargs):
+        result = self.queryset.filter(season__league__sport__id=kwargs.get('sport_id'),
+                                      season__league__id=kwargs.get('league_id'))
 
-        league = self.request.query_params.get('league', None)
-        start_time = self.request.query_params.get('start_time', None)
-        end_time = self.request.query_params.get('end_time', None)
-
-        if league is not None:
-            queryset = queryset.filter(league__name=league)
-
-        if start_time is not None:
-            queryset = queryset.filter(start_time__lte=datetime.fromtimestamp(float(start_time), pytz.utc))
-
-        if end_time is not None:
-            queryset = queryset.filter(end_time__lte=datetime.fromtimestamp(float(end_time), pytz.utc))
-
-        return queryset
+        return self.build_response(queryset=result)
 
 
 class PlayerViewSet(QuerySetReadOnlyViewSet):
@@ -178,6 +167,11 @@ class GameViewSet(QuerySetReadOnlyViewSet):
         combined = home_team_results | away_team_results
         combined = combined.order_by('start_time')
         return self.build_response(queryset=combined)
+
+    def retrieve_game(self, request, *args, **kwargs):
+        result = self.queryset.filter(id=kwargs.get('game_id'))
+
+        return self.build_response(queryset=result)
 
 
 class DailyFantasySportsSiteLeaguePositionViewSet(ReadOnlyModelViewSet):
