@@ -8,11 +8,14 @@ import os
 
 from fan_duel_client import FanDuelClient, Sport as FanDuelSport
 
-from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel, Player as PlayerModel
+from data.models import Player as PlayerModel
 from data.object_mapper import ObjectMapper
-from data.objects import League as LeagueObject, DfsSite as DfsSiteObject
+from data.objects import League as LeagueObject
 from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, TeamFetcher, GameFetcher, PlayerFetcher
+from dfs_site_persistence.models import \
+    DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
+    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
+from dfs_site_persistence.objects import DfsSite as DfsSiteObject
 from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))

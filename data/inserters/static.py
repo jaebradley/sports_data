@@ -11,7 +11,6 @@ logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging
 logger = logging.getLogger('inserter')
 
 
-
 class SportInserter:
 
     def __init__(self):

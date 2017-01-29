@@ -8,11 +8,12 @@ import os
 
 from draft_kings_client import DraftKingsClient, Sport as DraftKingsSport
 
-from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
-    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
 from data.object_mapper import ObjectMapper
-from data.objects import League as LeagueObject, DfsSite as DfsSiteObject
+from data.objects import League as LeagueObject
 from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
+from dfs_site_persistence.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
+    DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
+from dfs_site_persistence.objects import DfsSite as DfsSiteObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('draft_kings_inserter')
