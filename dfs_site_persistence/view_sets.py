@@ -65,13 +65,13 @@ class DailyFantasySportsSiteLeaguePositionGroupViewSet(QuerySetReadOnlyViewSet):
 
     def list_position_groups(self, request, *args, **kwargs):
         result = self.queryset.filter(daily_fantasy_sports_site_league_position__daily_fantasy_sports_site__id=kwargs.get('daily_fantasy_sports_site_id'),
-                                      daily_fantasy_sports_site_league_position__league__id=kwargs.get('league_id'))
+                                      daily_fantasy_sports_site_league_position__league_position__league__id=kwargs.get('league_id'))
 
         return self.build_response(queryset=result)
 
     def retrieve_position_group(self, request, *args, **kwargs):
         result = self.queryset.filter(daily_fantasy_sports_site_league_position__daily_fantasy_sports_site__id=kwargs.get('daily_fantasy_sports_site_id'),
-                                      daily_fantasy_sports_site_league_position__league__id=kwargs.get('league_id'),
+                                      daily_fantasy_sports_site_league_position__league_position__league__id=kwargs.get('league_id'),
                                       id=kwargs.get('position_group_id'))
 
         return self.build_response(queryset=result)
