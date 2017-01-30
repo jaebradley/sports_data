@@ -259,7 +259,8 @@ class PlayerFetcher:
             LeagueObject.nba: {
                 'P.J. Tucker': 'P.J Tucker',
                 'T.J. Warren': 'TJ Warren',
-                'Derrick Jones Jr.': 'Jr., Derrick Jones'
+                'Derrick Jones Jr.': 'Jr., Derrick Jones',
+                'T.J. McConnell': 'TJ McConnell'
             }
         }
     }
