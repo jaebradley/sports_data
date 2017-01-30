@@ -111,8 +111,8 @@ class SeasonViewSet(QuerySetReadOnlyViewSet):
     queryset = Season.objects.all().order_by('start_time', 'end_time')
 
     def list_seasons(self, request, *args, **kwargs):
-        result = self.queryset.filter(season__league__sport__id=kwargs.get('sport_id'),
-                                      season__league__id=kwargs.get('league_id'))
+        result = self.queryset.filter(league__sport__id=kwargs.get('sport_id'),
+                                      league__id=kwargs.get('league_id'))
 
         return self.build_response(queryset=result)
 
