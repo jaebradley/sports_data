@@ -16,7 +16,7 @@ from dfs_site_persistence.models import \
     DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
     DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
 from dfs_site_persistence.objects import DfsSite as DfsSiteObject
-from settings import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
+from environment import BASIC_AUTHORIZATION_HEADER_VALUE, X_AUTH_TOKEN_HEADER_VALUE
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('fan_duel_inserter')

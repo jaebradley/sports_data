@@ -7,3 +7,4 @@ load_dotenv(dotenv_path=dotenv_path)
 
 BASIC_AUTHORIZATION_HEADER_VALUE = environ.get('BASIC_AUTHORIZATION_HEADER_VALUE')
 X_AUTH_TOKEN_HEADER_VALUE = environ.get('X_AUTH_TOKEN_HEADER_VALUE')
+SECRET_KEY = environ.get('SECRET_KEY')
