@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
-from environment import SECRET_KEY, ENGINE, NAME, USER, PASSWORD, HOST, PORT
+import dj_database_url
+
+from environment import SECRET_KEY, DATABASE_URL
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -90,14 +92,7 @@ WSGI_APPLICATION = 'data.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': ENGINE,
-        'NAME': NAME,
-        'USER': USER,
-        'PASSWORD': PASSWORD,
-        'HOST': HOST,
-        'PORT': PORT,
-    }
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 
