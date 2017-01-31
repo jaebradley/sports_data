@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'data.urls'
+ROOT_URLCONF = 'sports_data.urls'
 
 TEMPLATES = [
     {
@@ -85,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'data.wsgi.application'
+WSGI_APPLICATION = 'sports_data.wsgi.application'
 
 
 # Database
