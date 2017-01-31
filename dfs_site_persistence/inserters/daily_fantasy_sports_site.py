@@ -5,24 +5,33 @@ from __future__ import unicode_literals
 import logging
 import logging.config
 import os
-
-from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime, timedelta
 
 from draft_kings_client import Position as DraftKingsPosition, Team as DraftKingsTeam
 from fan_duel_client import Position as FanDuelPosition, Team as FanDuelTeam
 
-from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Game as GameModel, \
-    DailyFantasySportsSite as DailyFantasySportsSiteModel, \
-    DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
-    LeaguePosition as LeaguePositionModel, \
-    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel, \
+from data.models import Team as TeamModel, Season as SeasonModel, Game as GameModel, \
     Player as PlayerModel
-from data.objects import League as LeagueObject, DfsSite as DfsSiteObject, Position as PositionObject, \
-    Team as TeamObject
 from data.object_mapper import ObjectMapper
+from data.objects import League as LeagueObject, Position as PositionObject, Team as TeamObject
+from dfs_site_persistence.models import DailyFantasySportsSite as DailyFantasySportsSiteModel, \
+    DailyFantasySportsSiteLeaguePosition as DailyFantasySportsSiteLeaguePositionModel, \
+    DailyFantasySportsSiteLeaguePositionGroup as DailyFantasySportsSiteLeaguePositionGroupModel
+from dfs_site_persistence.objects import DfsSite as DfsSiteObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
+
+
+class DfsSiteInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        logger.info('Inserting DFS sites')
+        DailyFantasySportsSiteModel.objects.bulk_create([DailyFantasySportsSiteModel(name=site.value) for site in DfsSiteObject])
 
 
 class PositionFetcher:
@@ -73,7 +82,7 @@ class PositionFetcher:
 
     @staticmethod
     def get_or_create_league_position_group(daily_fantasy_sports_site_object, league_object, position_object,
-                                            identifier):
+                                            site_identifier):
         daily_fantasy_sports_site_model_object = DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)
 
         league_position_object = PositionFetcher.get_position_object(
@@ -91,7 +100,7 @@ class PositionFetcher:
 
         daily_fantasy_sports_site_position_group, created = DailyFantasySportsSiteLeaguePositionGroupModel.objects \
             .get_or_create(daily_fantasy_sports_site_league_position=daily_fantasy_sports_site_league_position,
-                           identifier=identifier)
+                           site_identifier=site_identifier)
         logger.info('Created: %s | FanDuel League Position Group: %s', created, daily_fantasy_sports_site_position_group)
 
         return daily_fantasy_sports_site_position_group
@@ -220,7 +229,10 @@ class GameFetcher:
         season = SeasonModel.objects.get(league=league, start_time__lte=start_time, end_time__gte=start_time)
         logger.info('Season: %s', season)
 
-        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time__contains=start_time.date())
+        # TODO: This is so shitty - @jbradley to fix in future
+        max_start_time = start_time + timedelta(hours=12)
+
+        game = GameModel.objects.get(home_team=home_team, away_team=away_team, season=season, start_time__gte=start_time, start_time__lte=max_start_time)
         logger.info('Game: %s', game)
 
         return game
@@ -247,7 +259,8 @@ class PlayerFetcher:
             LeagueObject.nba: {
                 'P.J. Tucker': 'P.J Tucker',
                 'T.J. Warren': 'TJ Warren',
-                'Derrick Jones Jr.': 'Jr., Derrick Jones'
+                'Derrick Jones Jr.': 'Jr., Derrick Jones',
+                'T.J. McConnell': 'TJ McConnell'
             }
         }
     }
@@ -284,3 +297,7 @@ class PlayerFetcher:
 
             logger.info('Using Translation: %s instead of DraftKings name: %s', player_name_translation, name)
             return PlayerModel.objects.get(team=team_model_object, name=player_name_translation, jersey=jersey_number)
+        except PlayerModel.DoesNotExist:
+            logger.error('Player with name: %s, jersey: %s, team: %s does not exist',
+                         name, jersey_number, team_model_object)
+            raise PlayerModel.DoesNotExist

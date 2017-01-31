@@ -8,11 +8,13 @@ import os
 
 from draft_kings_client import DraftKingsClient, Sport as DraftKingsSport
 
-from data.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
-from data.object_mapper import ObjectMapper
-from data.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
+from dfs_site_persistence.object_mapper import ObjectMapper
+from data.models import Player as PlayerModel
+from data.objects import League as LeagueObject
+from dfs_site_persistence.inserters.daily_fantasy_sports_site import PositionFetcher, PlayerFetcher, GameFetcher
+from dfs_site_persistence.models import DailyFantasySportsSitePlayerGamePosition as DailyFantasySportsSitePlayerGamePositionModel, \
     DailyFantasySportsSitePlayerGame as DailyFantasySportsSitePlayerGameModel
-from data.objects import League as LeagueObject, DfsSite as DfsSiteObject
+from dfs_site_persistence.objects import DfsSite as DfsSiteObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('draft_kings_inserter')
@@ -46,8 +48,12 @@ class NbaPlayerGameInserter:
                 draft_kings_league_position_groups = NbaPlayerGameInserter.get_or_create_league_position_groups(position_group=draft_group_player.position_group)
                 logger.info('DraftKings League Position Groups: %s' % draft_kings_league_position_groups)
 
-                draft_kings_player_game = NbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
-                logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
+                # TODO: @jbradley this is because for whatever reasons DK has players that NBA.com does not - still pretty shitty logic
+                try:
+                    draft_kings_player_game = NbaPlayerGameInserter.insert_draft_group_player(draft_group_player=draft_group_player)
+                    logger.info('DraftKings Player Game: %s' % draft_kings_player_game)
+                except PlayerModel.DoesNotExist:
+                    break
 
                 for draft_kings_league_position_group in draft_kings_league_position_groups:
                     logger.info('DraftKings League Position Group: %s' % draft_kings_league_position_group)
@@ -65,7 +71,7 @@ class NbaPlayerGameInserter:
             league_position_group = PositionFetcher.get_or_create_league_position_group(
                 daily_fantasy_sports_site_object=PlayerGameInserter.daily_fantasy_sports_site,
                 league_object=NbaPlayerGameInserter.league, position_object=position,
-                identifier=position_group.position_group_id)
+                site_identifier=position_group.position_group_id)
             draft_kings_league_position_groups.append(league_position_group)
         return draft_kings_league_position_groups
 

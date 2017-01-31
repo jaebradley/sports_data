@@ -1,8 +1,7 @@
 from data.models import Position as PositionModel, League as LeagueModel, LeaguePosition as LeaguePositionModel, \
-    Team as TeamModel, DailyFantasySportsSite as DailyFantasySportsSiteModel
+    Team as TeamModel
 
-from data.objects import Position as PositionObject, League as LeagueObject, Team as TeamObject, \
-    DfsSite as DailyFantasySportsSiteObject
+from data.objects import Position as PositionObject, League as LeagueObject, Team as TeamObject
 
 
 class ObjectMapper:
@@ -37,9 +36,3 @@ class ObjectMapper:
 
         return TeamModel.objects.get(league=ObjectMapper.to_league_model_object(league_object=team_object.value['league']),
                                      name=team_object.value['name'])
-
-    @staticmethod
-    def to_daily_fantasy_sports_site_model_object(daily_fantasy_sports_site_object):
-        assert isinstance(daily_fantasy_sports_site_object, DailyFantasySportsSiteObject)
-
-        return DailyFantasySportsSiteModel.objects.get(name=daily_fantasy_sports_site_object.value)

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from data.inserters.static import DfsSiteInserter
+from dfs_site_persistence.inserters.daily_fantasy_sports_site import DfsSiteInserter
 
 
 class Command(BaseCommand):
