@@ -83,7 +83,6 @@ class DailyFantasySportsSitePlayerGameViewSet(QuerySetReadOnlyViewSet):
                                                                        'player__name', 'game__start_time', 'salary')
 
     def filter_queryset(self, queryset):
-
         start_time = self.request.query_params.get('start_time', None)
         max_salary = self.request.query_params.get('max_salary', None)
         min_salary = self.request.query_params.get('min_salary', None)
@@ -104,6 +103,6 @@ class DailyFantasySportsSitePlayerGameViewSet(QuerySetReadOnlyViewSet):
                                       player__team__league__id=kwargs.get('league_id'),
                                       game__home_team__league_id=kwargs.get('league_id'),
                                       game__away_team__league_id=kwargs.get('league_id'),
-                                      season__league__id=kwargs.get('league_id'))
+                                      game__season__league__id=kwargs.get('league_id'))
 
         return self.build_response(queryset=result)
