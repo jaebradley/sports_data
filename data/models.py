@@ -91,3 +91,14 @@ class Game(Model):
 
     def __unicode__(self):
         return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.season, self.start_time, self.identifier)
+
+
+class GamePlayer(Model):
+    game = ForeignKey(Game, on_delete=CASCADE)
+    player = ForeignKey(Player, on_delete=CASCADE)
+
+    class Meta:
+        unique_together = ('game', 'player')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.game, self.player)
