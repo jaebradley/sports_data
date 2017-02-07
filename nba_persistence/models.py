@@ -8,7 +8,7 @@ from data.models import GamePlayer
 
 class GamePlayerBoxScore(Model):
     game_player = ForeignKey(GamePlayer, on_delete=CASCADE)
-    status = CharField(max_length=100, default=None)
+    status = CharField(max_length=100)
     explanation = CharField(max_length=100, default=None)
     seconds_played = BigIntegerField(null=False, default=0),
     field_goals_made = BigIntegerField(null=False, default=0),
