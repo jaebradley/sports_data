@@ -108,11 +108,11 @@ class NbaBoxScoreInserter:
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
             for game in GameModel.objects.filter(season=season):
-                traditional_box_score = NbaClient.get_traditional_box_score(game_id=game.identifier)
+                traditional_box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
                 for player_box_score in traditional_box_score.player_box_scores:
-                    team = TeamModel.objects.get(league=nba, name=player_box_score.team.name)
+                    team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
                     player = PlayerModel.objects.get(name=player_box_score.player.name,
-                                                     identifier=player_box_score.player.identifier,
+                                                     identifier=player_box_score.player.id,
                                                      team=team)
 
                     game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
@@ -121,7 +121,7 @@ class NbaBoxScoreInserter:
                     status = NbaGamePlayerStatusObject.active
                     explanation = None
 
-                    if player_box_score.comment is not None:
+                    if player_box_score.comment is not None and not player_box_score.comment:
                         logger.info('Player Box Score Comment: %s', player_box_score.comment)
                         comment_parts = player_box_score.comment.split(' - ')
                         status = NbaGamePlayerStatusObject.identify_status(abbreviation=comment_parts[0])
