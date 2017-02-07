@@ -6,7 +6,7 @@ from django.db.models import Model, BigIntegerField, CharField, ForeignKey, \
 from data.models import GamePlayer
 
 
-class BoxScore(Model):
+class GamePlayerBoxScore(Model):
     game_player = ForeignKey(GamePlayer, on_delete=CASCADE)
     status = CharField(max_length=100, default=None)
     explanation = CharField(max_length=100, default=None)
@@ -19,7 +19,6 @@ class BoxScore(Model):
     free_throws_attempted = BigIntegerField(null=False, default=0),
     offensive_rebounds = BigIntegerField(null=False, default=0),
     defensive_rebounds = BigIntegerField(null=False, default=0),
-    total_rebounds = BigIntegerField(null=False, default=0),
     assists = BigIntegerField(null=False, default=0),
     steals = BigIntegerField(null=False, default=0),
     blocks = BigIntegerField(null=False, default=0),

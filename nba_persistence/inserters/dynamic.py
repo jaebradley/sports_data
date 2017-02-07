@@ -10,8 +10,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
-    Player as PlayerModel, Game as GameModel
+    Player as PlayerModel, Game as GameModel, GamePlayer as GamePlayerModel
 from data.objects import League as LeagueObject, Sport as SportObject
+
+from nba_persistence.models import GamePlayerBoxScore as NbaGamePlayerBoxScoreModel
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
@@ -92,3 +94,41 @@ class NbaGamesInserter:
                                                                         start_time=game.start_time,
                                                                         identifier=game.game_id)
                         logger.info('Created: %s | Game: %s', created, game)
+
+
+class NbaBoxScoreInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        basketball = SportModel.objects.get(name=SportObject.basketball.value)
+        nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
+        for season in SeasonModel.objects.filter(league=nba):
+            for game in GameModel.objects.filter(season=season):
+                traditional_box_score = NbaClient.get_traditional_box_score(game_id=game.identifier)
+                for player_box_score in traditional_box_score.player_box_scores:
+                    team = TeamModel.objects.get(league=nba, name=player_box_score.team.name)
+                    player = PlayerModel.objects.get(name=player_box_score.player.name,
+                                                     identifier=player_box_score.player.identifier,
+                                                     team=team)
+
+                    game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
+                    logger.info('Created: %s | Game Player: %s', created, game_player)
+
+                    box_score, created = NbaGamePlayerBoxScoreModel.objects.get_or_create(
+                            game_player=game_player, seconds_player=player_box_score.seconds_played,
+                            field_goals_made=player_box_score.field_goals_made,
+                            field_goals_attempted=player_box_score.field_goal_attempts,
+                            three_point_field_goals_made=player_box_score.three_point_field_goals_made,
+                            three_point_field_goals_attempted=player_box_score.three_point_field_goal_attempts,
+                            free_throws_made=player_box_score.free_throws_made,
+                            free_throws_attempted=player_box_score.free_throw_attempted,
+                            offensive_rebounds=player_box_score.offensive_rebounds,
+                            defensive_rebounds=player_box_score.defensive_rebounds,
+                            assists=player_box_score.assists, steals=player_box_score.steals,
+                            blocks=player_box_score.blocks, turnovers=player_box_score.turnovers,
+                            personal_fouls=player_box_score.personal_fouls, points=player_box_score.points,
+                            plus_minus=player_box_score.plus_minus)
+                    logger.info('Created: %s | Box Score: %s', created, box_score)
