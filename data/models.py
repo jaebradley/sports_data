@@ -43,17 +43,6 @@ class LeaguePosition(Model):
         return '{0} - {1}'.format(self.league, self.position)
 
 
-class Team(Model):
-    league = ForeignKey(League, on_delete=CASCADE)
-    name = CharField(max_length=100)
-
-    class Meta:
-        unique_together = ('league', 'name')
-
-    def __unicode__(self):
-        return '{0} - {1}'.format(self.league, self.name)
-
-
 class Season(Model):
     league = ForeignKey(League, on_delete=CASCADE)
     start_time = DateTimeField()
@@ -64,6 +53,17 @@ class Season(Model):
 
     def __unicode__(self):
         return '{0} - {1} - {2}'.format(self.league, self.start_time, self.end_time)
+
+
+class Team(Model):
+    season = ForeignKey(Season, on_delete=CASCADE)
+    name = CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('season', 'name')
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.season, self.name)
 
 
 class Player(Model):
