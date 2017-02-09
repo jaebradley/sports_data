@@ -70,24 +70,6 @@ class LeaguePositionInserter:
         LeaguePositionModel.objects.bulk_create(league_positions)
 
 
-class TeamInserter:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def insert():
-        logger.info('Inserting teams')
-        teams_to_create = []
-        for team in TeamObject:
-            sport = SportModel.objects.get(name=team.value['league'].value['sport'].value)
-            league = LeagueModel.objects.get(name=team.value['league'].value['name'], sport=sport)
-            # TODO @jbradley - in future may need to add logic around certain teams for certain seasons
-            for season in SeasonModel.objects.get(league=league):
-                teams_to_create.append(TeamModel(name=team.value['name'], season=season))
-        TeamModel.objects.bulk_create(teams_to_create)
-
-
 class SeasonInserter:
 
     def __init__(self):
@@ -104,3 +86,21 @@ class SeasonInserter:
             logger.info('League: %s' % league)
             seasons.append(SeasonModel(league=league, start_time=season.value['start_time'], end_time=season.value['end_time']))
         SeasonModel.objects.bulk_create(seasons)
+
+
+class TeamInserter:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def insert():
+        logger.info('Inserting teams')
+        teams_to_create = []
+        for team in TeamObject:
+            sport = SportModel.objects.get(name=team.value['league'].value['sport'].value)
+            league = LeagueModel.objects.get(name=team.value['league'].value['name'], sport=sport)
+            # TODO @jbradley - in future may need to add logic around certain teams for certain seasons
+            for season in SeasonModel.objects.filter(league=league):
+                teams_to_create.append(TeamModel(name=team.value['name'], season=season))
+        TeamModel.objects.bulk_create(teams_to_create)

@@ -21,7 +21,7 @@ class Command(BaseCommand):
         DfsSiteInserterCommand.insert()
         SportInserterCommand.insert()
         LeagueInserterCommand.insert()
+        SeasonInserterCommand.insert()
         TeamInserterCommand.insert()
         PositionInserterCommand.insert()
         LeaguePositionInserterCommand.insert()
-        SeasonInserterCommand.insert()

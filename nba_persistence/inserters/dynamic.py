@@ -6,7 +6,6 @@ import logging
 import logging.config
 import os
 
-from django.core.exceptions import ObjectDoesNotExist
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
@@ -36,6 +35,8 @@ class NbaPlayersInserter:
                                                                       end_year=season.end_time.year)
             for player in NbaClient.get_players(season=query_season):
                 logger.info('Player: %s' % player.__dict__)
+                player, created = PlayerModel.objects.get_or_create(name=player.name.strip(), source_id=player.id)
+                logger.info('Created: %s | Player: %s', created, player)
                 for player_team_season in player.team_seasons:
                     logger.info('Player Team Season: %s' % player_team_season.__dict__)
                     # TODO: @jbradley add this as a utility function in nba data client project
@@ -45,9 +46,6 @@ class NbaPlayersInserter:
 
                         team = TeamModel.objects.get(season=season, name=player_team_season.team.value)
                         logger.info('Team: %s' % team)
-
-                        player, created = PlayerModel.objects.get_or_create(name=player.name.strip(), source_id=player.id)
-                        logger.info('Created: %s | Player: %s', created, player)
 
                         team_player, created = TeamPlayerModel.objects.get_or_create(team=team, player=player,
                                                                                      jersey=player.jersey)
