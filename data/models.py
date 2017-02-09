@@ -68,7 +68,7 @@ class Team(Model):
 
 class Player(Model):
     name = CharField(max_length=250)
-    source_id = CharField(max_length=50)
+    source_id = CharField(max_length=250)
 
     class Meta:
         unique_together = ('name', 'source_id')
@@ -92,20 +92,19 @@ class TeamPlayer(Model):
 class Game(Model):
     home_team = ForeignKey(Team, on_delete=CASCADE, related_name='home_team')
     away_team = ForeignKey(Team, on_delete=CASCADE, related_name='away_team')
-    season = ForeignKey(Season, on_delete=CASCADE, related_name='season')
     start_time = DateTimeField()
-    identifier = CharField(max_length=50)
+    source_id = CharField(max_length=50)
 
     class Meta:
-        unique_together = ('home_team', 'away_team', 'season', 'start_time')
+        unique_together = ('home_team', 'away_team', 'start_time')
 
     def __unicode__(self):
-        return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.season, self.start_time, self.identifier)
+        return '{0} - {1} - {2}'.format(self.home_team, self.away_team, self.start_time, self.source_id)
 
 
 class GamePlayer(Model):
     game = ForeignKey(Game, on_delete=CASCADE)
-    player = ForeignKey(Player, on_delete=CASCADE)
+    player = ForeignKey(TeamPlayer, on_delete=CASCADE)
 
     class Meta:
         unique_together = ('game', 'player')
