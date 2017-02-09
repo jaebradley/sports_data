@@ -67,16 +67,26 @@ class Team(Model):
 
 
 class Player(Model):
-    team = ForeignKey(Team, on_delete=CASCADE, null=True)
     name = CharField(max_length=250)
-    identifier = CharField(max_length=50)
-    jersey = BigIntegerField(null=True)
+    source_id = CharField(max_length=50)
 
     class Meta:
-        unique_together = ('team', 'identifier', 'jersey')
+        unique_together = ('name', 'source_id')
 
     def __unicode__(self):
-        return '{0} - {1} - {2} - {3}'.format(self.team, self.name, self.identifier, self.jersey)
+        return '{0} - {1}'.format(self.name, self.source_id)
+
+
+class TeamPlayer(Model):
+    team = ForeignKey(Team, on_delete=CASCADE)
+    player = ForeignKey(Player, on_delete=CASCADE)
+    jersey = BigIntegerField()
+
+    class Meta:
+        unique_together = ('team', 'player', 'jersey')
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.team, self.player, self.jersey)
 
 
 class Game(Model):
