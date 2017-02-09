@@ -110,10 +110,12 @@ class NbaBoxScoreInserter:
             for game in GameModel.objects.filter(season=season):
                 traditional_box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
                 for player_box_score in traditional_box_score.player_box_scores:
-                    team = TeamModel.objects.get(league=nba, name=player_box_score.player.team.value)
+                    logger.info(player_box_score.player.__dict__)
                     player = PlayerModel.objects.get(name=player_box_score.player.name,
                                                      identifier=player_box_score.player.id,
-                                                     team=team)
+                                                     jersey=player_box_score.player.jersey,
+                                                     team__league=nba,
+                                                     team__name=player_box_score.player.team.value)
 
                     game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
                     logger.info('Created: %s | Game Player: %s', created, game_player)
@@ -132,6 +134,6 @@ class NbaBoxScoreInserter:
                             defensive_rebounds=player_box_score.defensive_rebounds,
                             assists=player_box_score.assists, steals=player_box_score.steals,
                             blocks=player_box_score.blocks, turnovers=player_box_score.turnovers,
-                            personal_fouls=player_box_score.personal_fouls, points=player_box_score.points,
+                            personal_fouls=player_box_score.personal_fouls,
                             plus_minus=player_box_score.plus_minus)
                     logger.info('Created: %s | Box Score: %s', created, box_score)
