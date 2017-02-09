@@ -10,11 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaDateRange
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
-    Player as PlayerModel, Game as GameModel, GamePlayer as GamePlayerModel
+    Player as PlayerModel, TeamPlayer as TeamPlayerModel, Game as GameModel, GamePlayer as GamePlayerModel
 from data.objects import League as LeagueObject, Sport as SportObject
-
 from nba_persistence.models import GamePlayerBoxScore as NbaGamePlayerBoxScoreModel
-from nba_persistence.objects import GamePlayerStatus as NbaGamePlayerStatusObject
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
 logger = logging.getLogger('inserter')
@@ -37,7 +35,6 @@ class NbaPlayersInserter:
             query_season = NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
                                                                       end_year=season.end_time.year)
             for player in NbaClient.get_players(season=query_season):
-                season_players = list()
                 logger.info('Player: %s' % player.__dict__)
                 for player_team_season in player.team_seasons:
                     logger.info('Player Team Season: %s' % player_team_season.__dict__)
@@ -46,22 +43,15 @@ class NbaPlayersInserter:
                             <= NbaSeason.get_start_year_by_season(season=query_season) \
                             <= NbaSeason.get_start_year_by_season(season=player_team_season.season_range.end):
 
-                        team = TeamModel.objects.get(league=nba, name=player_team_season.team.value)
+                        team = TeamModel.objects.get(season=season, name=player_team_season.team.value)
                         logger.info('Team: %s' % team)
 
-                        # TODO: @jbradley to refactor placeholder logic
-                        # Check if player exists, if so, move on
-                        # Else, add player to list to bulk create
-                        # Collisions could occur if a player is inserted before the bulk create executes
-                        try:
-                            PlayerModel.objects.get(team=team, identifier=player.player_id, jersey=player.jersey)
-                            logger.info('Player: %s exists', player)
-                        except ObjectDoesNotExist:
-                            logger.info('Player: %s does not exist', player)
-                            season_players.append(PlayerModel(team=team, name=player.name.strip(),
-                                                              identifier=player.player_id, jersey=player.jersey))
+                        player, created = PlayerModel.objects.get_or_create(name=player.name.strip(), source_id=player.id)
+                        logger.info('Created: %s | Player: %s', created, player)
 
-                PlayerModel.objects.bulk_create(season_players)
+                        team_player, created = TeamPlayerModel.objects.get_or_create(team=team, player=player,
+                                                                                     jersey=player.jersey)
+                        logger.info('Created: %s | Team Player: %s', created, team_player)
 
 
 class NbaGamesInserter:
