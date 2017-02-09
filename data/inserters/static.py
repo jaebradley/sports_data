@@ -78,10 +78,14 @@ class TeamInserter:
     @staticmethod
     def insert():
         logger.info('Inserting teams')
-        TeamModel.objects.bulk_create([TeamModel(name=team.value['name'],
-                                                 league=LeagueModel.objects.get(name=team.value['league'].value['name'],
-                                                                                sport=SportModel.objects.get(name=team.value['league'].value['sport'].value)))
-                                       for team in TeamObject])
+        teams_to_create = []
+        for team in TeamObject:
+            sport = SportModel.objects.get(name=team.value['league'].value['sport'].value)
+            league = LeagueModel.objects.get(name=team.value['league'].value['name'], sport=sport)
+            # TODO @jbradley - in future may need to add logic around certain teams for certain seasons
+            for season in SeasonModel.objects.get(league=league):
+                teams_to_create.append(TeamModel(name=team.value['name'], season=season))
+        TeamModel.objects.bulk_create(teams_to_create)
 
 
 class SeasonInserter:
