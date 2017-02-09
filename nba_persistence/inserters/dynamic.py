@@ -77,13 +77,12 @@ class NbaGamesInserter:
                         logger.info('Game Id: %s' % game.game_id)
                         logger.info('Home Team: %s vs. Away Team: %s @ %s',
                                     game.matchup.home_team, game.matchup.away_team, game.start_time)
-                        home_team = TeamModel.objects.get(name=game.matchup.home_team.value)
-                        away_team = TeamModel.objects.get(name=game.matchup.away_team.value)
+                        home_team = TeamModel.objects.get(season=season, name=game.matchup.home_team.value)
+                        away_team = TeamModel.objects.get(season=season, name=game.matchup.away_team.value)
                         game, created = GameModel.objects.get_or_create(home_team=home_team,
                                                                         away_team=away_team,
-                                                                        season=season,
                                                                         start_time=game.start_time,
-                                                                        identifier=game.game_id)
+                                                                        source_id=game.game_id)
                         logger.info('Created: %s | Game: %s', created, game)
 
 
