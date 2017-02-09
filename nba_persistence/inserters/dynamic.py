@@ -100,11 +100,11 @@ class NbaBoxScoreInserter:
                 traditional_box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
                 for player_box_score in traditional_box_score.player_box_scores:
                     logger.info(player_box_score.player.__dict__)
-                    player = PlayerModel.objects.get(name=player_box_score.player.name,
-                                                     identifier=player_box_score.player.id,
-                                                     jersey=player_box_score.player.jersey,
-                                                     team__league=nba,
-                                                     team__name=player_box_score.player.team.value)
+                    player = TeamPlayerModel.objects.get(player__name=player_box_score.player.name,
+                                                         player__source_id=player_box_score.player.id,
+                                                         jersey=player_box_score.player.jersey,
+                                                         team__season=season,
+                                                         team__name=player_box_score.player.team.value)
 
                     game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
                     logger.info('Created: %s | Game Player: %s', created, game_player)
