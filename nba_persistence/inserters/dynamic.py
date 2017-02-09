@@ -118,24 +118,16 @@ class NbaBoxScoreInserter:
                     game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
                     logger.info('Created: %s | Game Player: %s', created, game_player)
 
-                    status = NbaGamePlayerStatusObject.active
-                    explanation = None
-
-                    if player_box_score.comment is not None and not player_box_score.comment:
-                        logger.info('Player Box Score Comment: %s', player_box_score.comment)
-                        comment_parts = player_box_score.comment.split(' - ')
-                        status = NbaGamePlayerStatusObject.identify_status(abbreviation=comment_parts[0])
-                        explanation = comment_parts[1]
-
                     box_score, created = NbaGamePlayerBoxScoreModel.objects.get_or_create(
-                            game_player=game_player, status=status, explanation=explanation,
-                            seconds_player=player_box_score.seconds_played,
+                            game_player=game_player, status=player_box_score.player.status.type,
+                            explanation=player_box_score.player.status.comment,
+                            seconds_played=player_box_score.seconds_played,
                             field_goals_made=player_box_score.field_goals_made,
                             field_goals_attempted=player_box_score.field_goal_attempts,
                             three_point_field_goals_made=player_box_score.three_point_field_goals_made,
                             three_point_field_goals_attempted=player_box_score.three_point_field_goal_attempts,
                             free_throws_made=player_box_score.free_throws_made,
-                            free_throws_attempted=player_box_score.free_throw_attempted,
+                            free_throws_attempted=player_box_score.free_throw_attempts,
                             offensive_rebounds=player_box_score.offensive_rebounds,
                             defensive_rebounds=player_box_score.defensive_rebounds,
                             assists=player_box_score.assists, steals=player_box_score.steals,
