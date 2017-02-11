@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from data.models import Sport, League, Team, Position, LeaguePosition, Season, \
-    Player, Game
+    Player, Game, GamePlayer
 
 
 class SportSerializer(ModelSerializer):
@@ -65,3 +65,12 @@ class GameSerializer(ModelSerializer):
     class Meta:
         model = Game()
         fields = ('id', 'home_team', 'away_team', 'season', 'start_time')
+
+
+class GamePlayerSerializer(ModelSerializer):
+    game = GameSerializer()
+    player = PlayerSerializer()
+
+    class Meta:
+        model = GamePlayer()
+        fields = ('id', 'game', 'player')
