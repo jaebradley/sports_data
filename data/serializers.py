@@ -33,20 +33,20 @@ class LeaguePositionSerializer(ModelSerializer):
         fields = ('id', 'league', 'position')
 
 
-class TeamSerializer(ModelSerializer):
-    league = LeagueSerializer()
-
-    class Meta:
-        model = Team()
-        fields = ('id', 'name', 'league')
-
-
 class SeasonSerializer(ModelSerializer):
     league = LeagueSerializer()
 
     class Meta:
         model = Season()
         fields = ('id', 'league', 'start_time', 'end_time')
+
+
+class TeamSerializer(ModelSerializer):
+    season = SeasonSerializer()
+
+    class Meta:
+        model = Team()
+        fields = ('id', 'name', 'season')
 
 
 class PlayerSerializer(ModelSerializer):
