@@ -23,6 +23,7 @@ from dfs_site_persistence.views import daily_fantasy_sports_site_list, daily_fan
     daily_fantasy_sports_site_league_position_list, daily_fantasy_sports_site_league_position_detail, \
     daily_fantasy_sports_site_league_position_group_list, daily_fantasy_sports_site_league_position_group_detail, \
     daily_fantasy_sports_site_player_game_list
+from nba_persistence.views import game_player_box_score_list, game_player_box_score_detail
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -70,4 +71,7 @@ urlpatterns = [
 
     url(r'^daily-fantasy-sports-sites/(?P<daily_fantasy_sports_site_id>[0-9]+)/leagues/(?P<league_id>[0-9]+)/player-games/$',
         daily_fantasy_sports_site_player_game_list, name='daily_fantasy_sports_site_player_game_list'),
+
+    url(r'^box-scores/$', game_player_box_score_list, name='box_scores_list'),
+    url(r'^box-scores/(?P<box_score_id>[0-9]+)/$', game_player_box_score_detail, name='box_scores_detail')
 ]

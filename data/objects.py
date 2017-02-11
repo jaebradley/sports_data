@@ -54,6 +54,14 @@ class Season(Enum):
         'end_time': pytz.timezone('America/New_York').localize(datetime.datetime(2016, 6, 20, 20, 0, 0, 0))
     }
 
+    @staticmethod
+    def value_of(league, start_time, end_time):
+        for season in Season:
+            if season.value['league'] == league and season.value['start_time'] == start_time and season.value['end_time'] == end_time:
+                return season
+
+        raise ValueError('Unable to identify season')
+
 
 class LeaguePosition(Enum):
     nba_point_guard = {
@@ -206,7 +214,7 @@ class Team(Enum):
         assert isinstance(league, League)
 
         for team in Team:
-            if team.value['name'] == name.upper() and team.value['league'] == league:
+            if team.value['name'] == name and team.value['league'] == league:
                 return team
 
         raise ValueError('Unable to identify team with name: %s and league: %s', name, league)

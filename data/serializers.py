@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from data.models import Sport, League, Team, Position, LeaguePosition, Season, \
-    Player, Game
+    Player, Game, GamePlayer, TeamPlayer
 
 
 class SportSerializer(ModelSerializer):
@@ -33,14 +33,6 @@ class LeaguePositionSerializer(ModelSerializer):
         fields = ('id', 'league', 'position')
 
 
-class TeamSerializer(ModelSerializer):
-    league = LeagueSerializer()
-
-    class Meta:
-        model = Team()
-        fields = ('id', 'name', 'league')
-
-
 class SeasonSerializer(ModelSerializer):
     league = LeagueSerializer()
 
@@ -49,19 +41,42 @@ class SeasonSerializer(ModelSerializer):
         fields = ('id', 'league', 'start_time', 'end_time')
 
 
+class TeamSerializer(ModelSerializer):
+    season = SeasonSerializer()
+
+    class Meta:
+        model = Team()
+        fields = ('id', 'name', 'season')
+
+
 class PlayerSerializer(ModelSerializer):
+    class Meta:
+        model = Player()
+        fields = ('id', 'name', 'source_id')
+
+
+class TeamPlayerSerializer(ModelSerializer):
+    player = PlayerSerializer()
     team = TeamSerializer()
 
     class Meta:
-        model = Player()
-        fields = ('id', 'name', 'team', 'jersey')
+        model = TeamPlayer()
+        fields = ('id', 'player', 'team', 'jersey')
 
 
 class GameSerializer(ModelSerializer):
     home_team = TeamSerializer()
     away_team = TeamSerializer()
-    season = SeasonSerializer()
 
     class Meta:
         model = Game()
-        fields = ('id', 'home_team', 'away_team', 'season', 'start_time')
+        fields = ('id', 'home_team', 'away_team', 'start_time')
+
+
+class GamePlayerSerializer(ModelSerializer):
+    game = GameSerializer()
+    player = TeamPlayerSerializer()
+
+    class Meta:
+        model = GamePlayer()
+        fields = ('id', 'game', 'player')
