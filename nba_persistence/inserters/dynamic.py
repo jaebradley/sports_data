@@ -10,7 +10,7 @@ from nba_data import Client as NbaClient, Season as NbaSeason, DateRange as NbaD
 
 from data.models import League as LeagueModel, Team as TeamModel, Season as SeasonModel, Sport as SportModel,\
     Player as PlayerModel, TeamPlayer as TeamPlayerModel, Game as GameModel, GamePlayer as GamePlayerModel
-from data.objects import League as LeagueObject, Sport as SportObject
+from data.objects import League as LeagueObject, Sport as SportObject, Season as SeasonObject, Team as TeamObject
 from nba_persistence.models import GamePlayerBoxScore as NbaGamePlayerBoxScoreModel
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), '../../logging.conf'))
@@ -96,21 +96,36 @@ class NbaBoxScoreInserter:
         basketball = SportModel.objects.get(name=SportObject.basketball.value)
         nba = LeagueModel.objects.get(name=LeagueObject.nba.value['name'], sport=basketball)
         for season in SeasonModel.objects.filter(league=nba):
-            for game in GameModel.objects.filter(season=season):
-                traditional_box_score = NbaClient.get_traditional_box_score(game_id=str(game.identifier))
+            query_season = NbaSeason.get_season_by_start_and_end_year(start_year=season.start_time.year,
+                                                                      end_year=season.end_time.year)
+            source_id_players_mapping = {}
+            for player in NbaClient.get_players(season=query_season):
+                source_id_players_mapping[player.player_id] = player
+            for game in GameModel.objects.filter(start_time__lte=season.end_time).filter(start_time__gte=season.start_time):
+                traditional_box_score = NbaClient.get_traditional_box_score(game_id=str(game.source_id))
                 for player_box_score in traditional_box_score.player_box_scores:
                     logger.info(player_box_score.player.__dict__)
-                    player = TeamPlayerModel.objects.get(player__name=player_box_score.player.name,
-                                                         player__source_id=player_box_score.player.id,
-                                                         jersey=player_box_score.player.jersey,
-                                                         team__season=season,
-                                                         team__name=player_box_score.player.team.value)
+                    player, created = PlayerModel.objects.get_or_create(name=player_box_score.player.name, source_id=player_box_score.player.id)
+                    try:
+                        team_player = TeamPlayerModel.objects.get(player__source_id=player_box_score.player.id,
+                                                             team__season=season,
+                                                             team__name=player_box_score.player.team.value)
+                    except TeamPlayerModel.DoesNotExist:
+                        player_data = source_id_players_mapping.get(str(player_box_score.player.id))
+                        if player_data is not None:
+                            team_player = TeamPlayerModel.objects.create(player=player,
+                                                                    team=TeamModel.objects.get(season=season, name=player_box_score.player.team.value),
+                                                                    jersey=player_data.jersey)
+                        else:
+                            team_player = TeamPlayerModel.objects.create(player=player,
+                                                                    team=TeamModel.objects.get(season=season, name=player_box_score.player.team.value),
+                                                                    jersey=None)
 
-                    game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=player)
+                    game_player, created = GamePlayerModel.objects.get_or_create(game=game, player=team_player)
                     logger.info('Created: %s | Game Player: %s', created, game_player)
 
                     box_score, created = NbaGamePlayerBoxScoreModel.objects.get_or_create(
-                            game_player=game_player, status=player_box_score.player.status.type,
+                            game_player=game_player, status=player_box_score.player.status.type.value,
                             explanation=player_box_score.player.status.comment,
                             seconds_played=player_box_score.seconds_played,
                             field_goals_made=player_box_score.field_goals_made,

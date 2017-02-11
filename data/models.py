@@ -80,7 +80,7 @@ class Player(Model):
 class TeamPlayer(Model):
     team = ForeignKey(Team, on_delete=CASCADE)
     player = ForeignKey(Player, on_delete=CASCADE)
-    jersey = BigIntegerField()
+    jersey = BigIntegerField(null=True)
 
     class Meta:
         unique_together = ('team', 'player', 'jersey')
