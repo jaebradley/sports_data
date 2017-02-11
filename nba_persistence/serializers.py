@@ -1,9 +1,12 @@
 from rest_framework.serializers import ModelSerializer
 
+from data.serializers import GamePlayerSerializer
 from nba_persistence.models import GamePlayerBoxScore
 
 
 class GamePlayerBoxScoreSerializer(ModelSerializer):
+    game_player = GamePlayerSerializer()
+
     class Meta:
         model = GamePlayerBoxScore()
         fields = ('id', 'game_player', 'status', 'explanation', 'seconds_played', 'field_goals_made',
