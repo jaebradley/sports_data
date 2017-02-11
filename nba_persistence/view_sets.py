@@ -15,6 +15,5 @@ class GamePlayerBoxScoreViewSet(QuerySetReadOnlyViewSet):
         return self.build_response(queryset=result)
 
     def retrieve(self, request, *args, **kwargs):
-        result = self.get_queryset().filter(ggame_player__player__id=kwargs.get('player_id'),
-                                            game_player__game__id=kwargs.get('game_id'))
+        result = self.get_queryset().filter(id=kwargs.get('box_score_id'))
         return self.build_response(queryset=result)
